@@ -4,8 +4,8 @@ if __name__ == '__main__':
     m = mnem.Mnem()
     m.load_plugins()
 
-    key = 'google-image'
-    query= "cat"
+    key = 'google-finance'
+    query= "dra"
     locale = 'uk'
     #locale = None
 
