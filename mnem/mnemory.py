@@ -1,6 +1,9 @@
 
 from yapsy.IPlugin import IPlugin
 
+import urllib2
+from urllib import quote
+
 class MnemPlugin(IPlugin):
 
     def get_name(self):
@@ -19,17 +22,40 @@ class UrlResult(SearchResult):
 
 class CompletionResult(SearchResult):
 
-    def __init__(self, orig_query):
-        self.orig_query = orig_query
+    def __init__(self, keyword, category="", url=""):
+        self.keyword = keyword
 
     def __str__(self):
-        return self.orig_query
+        return "%s (%s)" % (self.keyword, self.category)
 
 class Mnemory:
 
     def __init__(self, locale=None):
         self.locale = locale
 
+class CompletionError(Exception):
+
+    pass
+
+class CompletionFetchError(CompletionError):
+
+    def __init__(self, engine, url, query):
+        self.engine = engine
+        self.url = url
+        self.query = query
+
+    def __str__(self):
+        return self.engine, self.url, self.query
+
+class CompletionParseError(CompletionError):
+
+    def __init__(self, engine, data, innerExcept):
+        self.data = data
+        self.engine = engine
+        self.innerExcept = innerExcept
+
+    def __str__(self):
+        return self.engine, self.data, self.innerExcept
 
 class SearchMnemory(Mnemory):
 
@@ -64,8 +90,18 @@ class SearchMnemory(Mnemory):
         url = self.getRequestUrl(query)
         return UrlResult(url)
 
+    def load_from_url(self, url_pattern, query):
+
+        try:
+            data = urllib2.urlopen(url_pattern % quote(query)).read()
+        except urllib.HTTPError:
+            raise CompletionFetchError(self, url_pattern, query)
+
+        return data
+
     def submitForSuggestions(self, part):
-        return self.getCompletions(part)
+
+         return self.getCompletions(part)
 
     def getRequestUrl(self, query):
         raise NotImplementedError
