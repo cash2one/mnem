@@ -9,18 +9,16 @@ def getsResults(engine, locale, query, num):
 
     e = engine(locale)
     c = e.submitForSuggestions(query)
-    #print c
     return c is not None and len(c) > MIN_RESULTS
 
 
 class GoogleTest(unittest.TestCase):
 
-
     def expectNResults(num=MIN_RESULTS):
         def expectSomeResults(f):
             def func_wrapper(s):
                 elq = f(s)
-                s.failUnless(getsResults(elq[0], elq[1], elq[2], num))
+                s.assertTrue(getsResults(elq[0], elq[1], elq[2], num))
             return func_wrapper
         return expectSomeResults
 

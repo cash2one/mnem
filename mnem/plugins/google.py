@@ -1,11 +1,15 @@
-#! /usr/bin/env python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 import mnemory
 
 import json
+import codecs
 
-from urllib import quote
-import HTMLParser
+reader = codecs.getreader("utf-8")
+
+from urllib.parse import quote
+import html
 
 class GoogleSearch(mnemory.SearchMnemory):
 
@@ -27,7 +31,7 @@ class GoogleSearch(mnemory.SearchMnemory):
         data = self.load_from_url(url, q)
         data = json.loads(data)
 
-        return [mnemory.CompletionResult(x.encode('utf-8')) for x in data[1]]
+        return [mnemory.CompletionResult(x) for x in data[1]]
 
 class GoogleImageSearch(mnemory.SearchMnemory):
 
@@ -45,12 +49,12 @@ class GoogleImageSearch(mnemory.SearchMnemory):
     def getCompletions(self, q):
 
         def process(res):
-            res = HTMLParser.HTMLParser().unescape(res.replace("<b>", "").replace("</b>", ""))
+            res = html.unescape(res.replace("<b>", "").replace("</b>", ""))
             return mnemory.CompletionResult(res)
 
         url = self.base + "/complete/search?client=img&hl=%s&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%%s" % self.langForLocale(self.locale)
 
-        data = self.load_from_url(url, q)
+        data = self.load_from_url(url, q).text
 
         data = data.split("(", 1)[1][:-1]
 
@@ -100,18 +104,20 @@ class GoogleTrendsSearch(mnemory.SearchMnemory):
     def getCompletions(self, q):
 
         def parseResult(e):
-            return mnemory.CompletionResult(e['title'], category=e['type'],
+            res = mnemory.CompletionResult(e['title'], category=e['type'],
                     url=self.getRequestUrl(e['mid']))
+            return res
 
         url = self.base + "/entitiesQuery?tn=10&q=%s"
 
-        data = self.load_from_url(url, q)
-        data = json.loads(data)
+        data = self.load_from_url(url, q).json()
 
         try:
             res = [parseResult(x) for x in data['entityList']]
         except Exception as e:
             raise mnemory.CompletionParseError(self, data, e)
+
+        return res
 
 class Google(mnemory.MnemPlugin):
 
