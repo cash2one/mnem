@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from yapsy.IPlugin import IPlugin
 
 import requests
@@ -34,7 +31,10 @@ class CompletionResult(SearchResult):
         self.url = url
 
     def __str__(self):
-        s = u"%s (%s)" % (self.keyword, self.category)
+        s = u"%s" % (self.keyword)
+
+        if self.category:
+            s += " (%s)" % self.category
         return s
 
 class Mnemory:
@@ -69,7 +69,17 @@ class CompletionParseError(CompletionError):
 class SearchMnemory(Mnemory):
 
     def __init__(self, locale=None):
+
+        # some engines have a default locale (or don't have any locale!)
+        if not locale:
+            locale = self.defaultLocale()
+
         Mnemory.__init__(self, locale)
+
+    # None means there is no preferred locale (or the mnemory doesn't
+    # have a locale
+    def defaultLocale(self):
+        return None
 
     @staticmethod
     def tldForLocale(locale):

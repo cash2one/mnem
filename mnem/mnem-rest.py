@@ -1,4 +1,4 @@
-#!flask/bin/python
+#!flask/bin/python3
 
 import mnem
 
@@ -43,14 +43,14 @@ class MnemoryAPI(Resource):
 
 class MnemorySearchAPI(MnemoryAPI):
 
-    def get(self, key, query):
-        mnemory = m.mnemories[key]()
+    def get(self, key, query, locale = None):
+        mnemory = m.mnemories[key](locale)
         return {'url': str(mnemory.submitSearch(query))}
 
 class MnemoryCompletionAPI(MnemoryAPI):
 
-    def get(self, key, query):
-        mnemory = m.mnemories[key]()
+    def get(self, key, query, locale = None):
+        mnemory = m.mnemories[key](locale)
         return {'completions': [str(s) for s in mnemory.submitForSuggestions(query)]}
 
 api.add_resource(MnemoryListAPI, '/mnemory', endpoint='mnemories')

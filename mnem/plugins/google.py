@@ -11,7 +11,12 @@ reader = codecs.getreader("utf-8")
 from urllib.parse import quote
 import html
 
-class GoogleSearch(mnemory.SearchMnemory):
+class GoogleMnemory(mnemory.SearchMnemory):
+
+    def defaultLocale(self):
+        return "us"
+
+class GoogleSearch(GoogleMnemory):
 
     def __init__(self, locale):
         self.base = "https://www.google." + self.tldForLocale(locale)
@@ -29,11 +34,11 @@ class GoogleSearch(mnemory.SearchMnemory):
         url = self.base + "/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=%s"
 
         data = self.load_from_url(url, q)
-        data = json.loads(data)
+        data = data.json()
 
         return [mnemory.CompletionResult(x) for x in data[1]]
 
-class GoogleImageSearch(mnemory.SearchMnemory):
+class GoogleImageSearch(GoogleMnemory):
 
     def __init__(self, locale):
         self.base = "https://www.google." + self.tldForLocale(locale)
@@ -62,7 +67,7 @@ class GoogleImageSearch(mnemory.SearchMnemory):
 
         return [process(x[0]) for x in data[1]]
 
-class GoogleFinanceSearch(mnemory.SearchMnemory):
+class GoogleFinanceSearch(GoogleMnemory):
 
     def __init__(self, locale):
         self.base = "https://www.google." + self.tldForLocale(locale) + "/finance"
@@ -81,14 +86,14 @@ class GoogleFinanceSearch(mnemory.SearchMnemory):
 
          data = self.load_from_url(url, q)
 
-         data = json.loads(data)['matches']
+         data = data.json()['matches']
 
          def get_name(x):
             return x['t'] + " - " + x['n'] + " - " + x['e']
 
          return [mnemory.CompletionResult(get_name(x)) for x in data]
 
-class GoogleTrendsSearch(mnemory.SearchMnemory):
+class GoogleTrendsSearch(GoogleMnemory):
 
     def __init__(self, locale):
         self.base = "https://www.google." + self.tldForLocale(locale) + "/trends"
@@ -128,4 +133,5 @@ class Google(mnemory.MnemPlugin):
         return {'google': GoogleSearch,
                 'google-image': GoogleImageSearch,
                 'google-finance': GoogleFinanceSearch,
+                'google-trends': GoogleTrendsSearch,
                 }
