@@ -39,7 +39,6 @@ class GoogleTest(unittest.TestCase):
         return google.GoogleTrendsSearch, 'uk', 'cat'
 
 
-
 def main():
     unittest.main()
 

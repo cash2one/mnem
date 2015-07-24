@@ -51,7 +51,21 @@ class MnemoryCompletionAPI(MnemoryAPI):
 
     def get(self, key, query, locale = None):
         mnemory = m.mnemories[key](locale)
-        return {'completions': [str(s) for s in mnemory.submitForSuggestions(query)]}
+        return {'completions': [self.completionResultJson(s) for s in mnemory.submitForSuggestions(query)]}
+
+    def completionResultJson(self, c):
+        """
+        Convert a CompletionResult to json
+        """
+        # all completions have a keyword
+        jc = {
+            'keyword': c.keyword
+        };
+
+        if c.category:
+            jc['category'] = c.category
+
+        return jc
 
 api.add_resource(MnemoryListAPI, '/mnemory', endpoint='mnemories')
 api.add_resource(MnemorySearchAPI, '/search/<string:key>/<string:query>', endpoint='url')
