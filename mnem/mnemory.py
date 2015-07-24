@@ -108,7 +108,7 @@ class SearchMnemory(Mnemory):
 
         return tld
 
-    def submitSearch(self, query):
+    def getSearchForQuery(self, query):
         url = self.getRequestUrl(query)
         return UrlResult(url)
 
