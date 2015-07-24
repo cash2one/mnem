@@ -25,8 +25,9 @@ class UrlResult(SearchResult):
 
 class CompletionResult(SearchResult):
 
-    def __init__(self, keyword, category="", url=""):
+    def __init__(self, keyword, category="", description="", url=""):
         self.keyword = keyword
+        self.description = description
         self.category = category
         self.url = url
 

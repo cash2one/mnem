@@ -87,6 +87,9 @@ class MnemoryCompletionLocaleAPI(MnemoryAPI):
         if c.url:
             jc['url'] = c.url
 
+        if c.description:
+            jc['desc'] = c.description
+
         return jc
 
 class MnemoryCompletionAPI(MnemoryCompletionLocaleAPI):

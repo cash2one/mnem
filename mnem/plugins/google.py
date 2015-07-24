@@ -90,10 +90,13 @@ class GoogleFinanceSearch(GoogleMnemory):
 
          data = data.json()['matches']
 
-         def get_name(x):
-            return x['t'] + " - " + x['n'] + " - " + x['e']
+         def parse(x):
+             symbol = x['t']
+             name = x['n']
+             exchange = x['e']
+             return mnemory.CompletionResult(symbol, description = "%s - %s" % (name, exchange))
 
-         return [mnemory.CompletionResult(get_name(x)) for x in data]
+         return [parse(x) for x in data]
 
 class GoogleTrendsSearch(GoogleMnemory):
 
