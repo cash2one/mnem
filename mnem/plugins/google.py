@@ -16,6 +16,9 @@ class GoogleMnemory(mnemory.SearchMnemory):
     def defaultLocale(self):
         return "us"
 
+    def availableCompletions(self):
+        return ["default"]
+
 class GoogleSearch(GoogleMnemory):
 
     def __init__(self, locale):
@@ -29,8 +32,7 @@ class GoogleSearch(GoogleMnemory):
     def getRequestUrl(self, q):
         return self.base + "/search?q=%s" % quote(q)
 
-    def getCompletions(self, q):
-
+    def getCompletions(self, completion, q):
         url = self.base + "/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=%s"
 
         data = self.load_from_url(url, q)
@@ -51,7 +53,7 @@ class GoogleImageSearch(GoogleMnemory):
     def getRequestUrl(self, q):
         return self.base + "/search?tbm=isch&q=%s" % quote(q)
 
-    def getCompletions(self, q):
+    def getCompletions(self, completion, q):
 
         def process(res):
             res = html.unescape(res.replace("<b>", "").replace("</b>", ""))
@@ -80,7 +82,7 @@ class GoogleFinanceSearch(GoogleMnemory):
     def getRequestUrl(self, q):
         return self.base + "?q=%s" % quote(q)
 
-    def getCompletions(self, q):
+    def getCompletions(self, completion, q):
 
          url = self.base + "/match?matchtype=matchall&q=%s"
 
@@ -106,7 +108,7 @@ class GoogleTrendsSearch(GoogleMnemory):
     def getRequestUrl(self, q):
         return self.base + "/explore#q=%s" % quote(q)
 
-    def getCompletions(self, q):
+    def getCompletions(self, completion, q):
 
         def parseResult(e):
             res = mnemory.CompletionResult(e['title'], category=e['type'],

@@ -81,6 +81,9 @@ class SearchMnemory(Mnemory):
     def defaultLocale(self):
         return None
 
+    def availableCompletions(self):
+        return []
+
     @staticmethod
     def tldForLocale(locale):
         try:
@@ -120,10 +123,10 @@ class SearchMnemory(Mnemory):
 
         return data
 
-    def submitForSuggestions(self, part):
+    def submitForSuggestions(self, completion, part):
 
         try:
-            return self.getCompletions(part)
+            return self.getCompletions(completion, part)
         except CompletionError as e:
             print(e)
 

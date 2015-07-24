@@ -8,7 +8,13 @@ MIN_RESULTS = 5;
 def getsResults(engine, locale, query, num):
 
     e = engine(locale)
-    c = e.submitForSuggestions(query)
+
+    comps = e.availableCompletions()
+    if comps:
+        c = e.submitForSuggestions(comps[0], query)
+    else:
+        c = None
+
     return c is not None and len(c) > MIN_RESULTS
 
 

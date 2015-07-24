@@ -45,13 +45,21 @@ class MnemorySearchAPI(MnemoryAPI):
 
     def get(self, key, query, locale = None):
         mnemory = m.mnemories[key](locale)
-        return {'url': str(mnemory.submitSearch(query))}
 
-class MnemoryCompletionAPI(MnemoryAPI):
+        jc = {'url': str(mnemory.submitSearch(query)),
+            'completions': mnemory.availableCompletions()
+        }
 
-    def get(self, key, query, locale = None):
+        return jc
+
+
+class MnemoryCompletionLocaleAPI(MnemoryAPI):
+
+    def get(self, key, completion, query, locale):
         mnemory = m.mnemories[key](locale)
-        return {'completions': [self.completionResultJson(s) for s in mnemory.submitForSuggestions(query)]}
+
+        comps = mnemory.submitForSuggestions(completion, query)
+        return {'completions': [self.completionResultJson(s) for s in comps]}
 
     def completionResultJson(self, c):
         """
@@ -67,9 +75,16 @@ class MnemoryCompletionAPI(MnemoryAPI):
 
         return jc
 
+class MnemoryCompletionAPI(MnemoryCompletionLocaleAPI):
+
+    def get(self, key, completion, query, locale):
+        return MnemoryCompletionLocaleAPI.get(key, completion, query, None)
+
 api.add_resource(MnemoryListAPI, '/mnemory', endpoint='mnemories')
-api.add_resource(MnemorySearchAPI, '/search/<string:key>/<string:query>', endpoint='url')
-api.add_resource(MnemoryCompletionAPI, '/complete/<string:key>/<string:query>', endpoint='completions')
+api.add_resource(MnemorySearchAPI, '/search/<string:key>/<string:query>', endpoint='search')
+api.add_resource(MnemoryCompletionAPI, '/complete/<string:key>/<string:completion>/<string:query>', endpoint='completions')
+api.add_resource(MnemoryCompletionLocaleAPI, '/complete/<string:key>/<string:completion>/locale/<string:locale>/<string:query>', endpoint='completions_locale')
+
 
 if __name__ == '__main__':
     print("Mnem server")
