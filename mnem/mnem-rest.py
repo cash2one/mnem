@@ -84,19 +84,21 @@ class MnemoryCompletionLocaleAPI(MnemoryAPI):
         if c.category:
             jc['category'] = c.category
 
+        if c.url:
+            jc['url'] = c.url
+
         return jc
 
 class MnemoryCompletionAPI(MnemoryCompletionLocaleAPI):
 
-    def get(self, key, completion, query, locale):
-        return MnemoryCompletionLocaleAPI.get(key, completion, query, None)
+    def get(self, key, completion, query):
+        return MnemoryCompletionLocaleAPI.get(self, key, completion, query, None)
 
 api.add_resource(MnemoryListAPI, '/mnemory', endpoint='mnemories')
 api.add_resource(MnemorySearchInfoAPI, '/search/<string:key>', endpoint='searchinfo')
 api.add_resource(MnemorySearchQueryAPI, '/search/<string:key>/query/<string:query>', endpoint='searchquery')
 api.add_resource(MnemoryCompletionAPI, '/complete/<string:key>/<string:completion>/<string:query>', endpoint='completions')
 api.add_resource(MnemoryCompletionLocaleAPI, '/complete/<string:key>/<string:completion>/locale/<string:locale>/<string:query>', endpoint='completions_locale')
-
 
 if __name__ == '__main__':
     print("Mnem server")
