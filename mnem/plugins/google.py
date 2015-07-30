@@ -21,6 +21,9 @@ class GoogleMnemory(mnemory.SearchMnemory):
 
 class GoogleSearch(GoogleMnemory):
 
+    key = "com.google.websearch"
+    defaultAlias = "google"
+
     def __init__(self, locale):
         self.base = "https://www.google." + self.tldForLocale(locale)
 
@@ -41,6 +44,9 @@ class GoogleSearch(GoogleMnemory):
         return [mnemory.CompletionResult(x) for x in data[1]]
 
 class GoogleImageSearch(GoogleMnemory):
+
+    key = "com.google.image"
+    defaultAlias = "google-image"
 
     def __init__(self, locale):
         self.base = "https://www.google." + self.tldForLocale(locale)
@@ -71,6 +77,9 @@ class GoogleImageSearch(GoogleMnemory):
 
 class GoogleFinanceSearch(GoogleMnemory):
 
+    key = "com.google.finance"
+    defaultAlias = "google-finance"
+
     def __init__(self, locale):
         self.base = "https://www.google." + self.tldForLocale(locale) + "/finance"
 
@@ -99,6 +108,9 @@ class GoogleFinanceSearch(GoogleMnemory):
          return [parse(x) for x in data]
 
 class GoogleTrendsSearch(GoogleMnemory):
+
+    key = "com.google.trends"
+    defaultAlias = "google-trends"
 
     def __init__(self, locale):
         self.base = "https://www.google." + self.tldForLocale(locale) + "/trends"
@@ -135,8 +147,9 @@ class Google(mnemory.MnemPlugin):
         return "Google Searches"
 
     def report_mnemories(self):
-        return {'google': GoogleSearch,
-                'google-image': GoogleImageSearch,
-                'google-finance': GoogleFinanceSearch,
-                'google-trends': GoogleTrendsSearch,
-                }
+        return [
+            GoogleSearch,
+            GoogleImageSearch,
+            GoogleFinanceSearch,
+            GoogleTrendsSearch,
+        ]

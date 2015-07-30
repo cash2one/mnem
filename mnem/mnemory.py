@@ -40,6 +40,8 @@ class CompletionResult(SearchResult):
 
 class Mnemory:
 
+    defaultAlias = ""
+
     def __init__(self, locale=None):
         self.locale = locale
 

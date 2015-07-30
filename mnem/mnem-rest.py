@@ -13,34 +13,19 @@ m.load_plugins()
 app = Flask(__name__, static_url_path="")
 api = Api(app)
 
-mnemory_fields = {
-    'key': fields.String,
-    'description': fields.String,
-}
-
 class MnemoryListAPI(Resource):
 
-    def __init__(self):
-        self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('title', type=str, required=True,
-                                   help='No task title provided',
-                                   location='json')
-        self.reqparse.add_argument('description', type=str, default="",
-                                   location='json')
-        super(MnemoryListAPI, self).__init__()
-
     def get(self):
-        return {'mnemories': [marshal(mnemory, mnemory_fields) for mnemory in m.mnemories]}
 
-class MnemoryAPI(Resource):
+        def presentMnemory(key):
+            return {
+                'key': key
+            }
 
-    def __init__(self):
-        self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument('query', type=str, required=True, location='json')
-        self.reqparse.add_argument('key', type=str, required=True, default="", location='json')
-        super(MnemoryAPI, self).__init__()
 
-class MnemorySearchInfoAPI(MnemoryAPI):
+        return {'mnemories': [presentMnemory(mnemory) for mnemory in m.mnemories]}
+
+class MnemorySearchInfoAPI(Resource):
 
     def get(self, key, locale = None):
         mnemory = m.mnemories[key](locale)
@@ -52,7 +37,7 @@ class MnemorySearchInfoAPI(MnemoryAPI):
 
         return jc
 
-class MnemorySearchQueryAPI(MnemoryAPI):
+class MnemorySearchQueryAPI(Resource):
 
     def get(self, key, query, locale = None):
         mnemory = m.mnemories[key](locale)
@@ -64,7 +49,7 @@ class MnemorySearchQueryAPI(MnemoryAPI):
         return jc
 
 
-class MnemoryCompletionLocaleAPI(MnemoryAPI):
+class MnemoryCompletionLocaleAPI(Resource):
 
     def get(self, key, completion, query, locale):
         mnemory = m.mnemories[key](locale)

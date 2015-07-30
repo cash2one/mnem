@@ -31,7 +31,17 @@ class Mnem():
             mnemories = plugin.plugin_object.report_mnemories()
             #print("  Providing: %s" % mnemories)
 
-            self.mnemories.update(mnemories)
+            for m in mnemories:
+
+                def getKey(mnemory):
+
+                    if mnemory.defaultAlias:
+                        return mnemory.defaultAlias
+
+                    return self.key
+
+                # TODO: allow to override aliases by configs?
+                self.mnemories[getKey(m)] = m
 
     def search(self, key, query, locale=None):
 
