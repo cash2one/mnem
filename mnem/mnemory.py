@@ -17,8 +17,9 @@ class SearchResult:
 
 class UrlResult(SearchResult):
 
-    def __init__(self, uri):
+    def __init__(self, keyword, uri):
         self.uri = uri
+        self.keyword = keyword
 
     def __str__(self):
         return self.uri
@@ -113,7 +114,7 @@ class SearchMnemory(Mnemory):
 
     def getSearchForQuery(self, query):
         url = self.getRequestUrl(query)
-        return UrlResult(url)
+        return UrlResult(query, url)
 
     def load_from_url(self, url_pattern, query):
 
@@ -129,9 +130,16 @@ class SearchMnemory(Mnemory):
     def submitForSuggestions(self, completion, part):
 
         try:
-            return self.getCompletions(completion, part)
+            compl = self.getCompletions(completion, part)
         except CompletionError as e:
             print(e)
+
+        for c in compl:
+            if not c.url:
+                c.url = self.getRequestUrl(c.keyword)
+
+        return compl
+
 
     def getRequestUrl(self, query):
         raise NotImplementedError

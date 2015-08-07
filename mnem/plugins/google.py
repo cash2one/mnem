@@ -126,7 +126,8 @@ class GoogleTrendsSearch(GoogleMnemory):
     def getCompletions(self, completion, q):
 
         def parseResult(e):
-            res = mnemory.CompletionResult(e['title'], category=e['type'],
+            res = mnemory.CompletionResult(e['title'],
+                    category=e['type'],
                     url=self.getRequestUrl(e['mid']))
             return res
 

@@ -42,8 +42,11 @@ class MnemorySearchQueryAPI(Resource):
     def get(self, key, query, locale = None):
         mnemory = m.mnemories[key](locale)
 
+        res = mnemory.getSearchForQuery(query);
+
         jc = {
-            'url': str(mnemory.getSearchForQuery(query))
+            'url': res.uri,
+            'keyword': res.keyword
         }
 
         return jc
