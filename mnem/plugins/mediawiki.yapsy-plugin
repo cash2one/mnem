@@ -1,0 +1,8 @@
+[Core]
+Name = MediaWiki
+Module = mediawiki
+
+[Documentation]
+Author = John Beard
+Version = 0.1
+Description = MediaWiki search/completion Mnemories
