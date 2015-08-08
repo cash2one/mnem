@@ -142,6 +142,29 @@ class GoogleTrendsSearch(GoogleMnemory):
 
         return res
 
+class YoutubeSearch(mnemory.SearchMnemory):
+
+    key = "com.youtube.search"
+    defaultAlias = "youtube"
+
+    def __init__(self, locale):
+        mnemory.SearchMnemory.__init__(self, locale)
+
+        self.base = "http://youtube.com"
+
+    def getRequestUrl(self, q):
+        return self.base + "/results?search_query=%s" % quote(q)
+
+    def getCompletions(self, completion, q):
+
+        url = "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=%s"
+
+        result = self.load_from_url(url, q).text
+        result = self.stripJsonp(result)
+        result = json.loads(result)
+
+        return [mnemory.CompletionResult(c[0]) for c in result[1]]
+
 class Google(mnemory.MnemPlugin):
 
     def get_name(self):
@@ -153,4 +176,5 @@ class Google(mnemory.MnemPlugin):
             GoogleImageSearch,
             GoogleFinanceSearch,
             GoogleTrendsSearch,
+            YoutubeSearch
         ]
