@@ -1,0 +1,8 @@
+[Core]
+Name = Wolfram Alpha
+Module = wolframalpha
+
+[Documentation]
+Author = John Beard
+Version = 0.1
+Description = Wolfram Alpha search/completion Mnemories
