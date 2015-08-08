@@ -1,0 +1,8 @@
+[Core]
+Name = Electronics Supply
+Module = electronics
+
+[Documentation]
+Author = John Beard
+Version = 0.1
+Description = Various electronics supplier search/completion Mnemories
