@@ -1,0 +1,8 @@
+[Core]
+Name = Baidu
+Module = baidu
+
+[Documentation]
+Author = John Beard
+Version = 0.1
+Description = Baidu search/completion Mnemories

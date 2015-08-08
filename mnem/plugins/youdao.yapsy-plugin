@@ -1,0 +1,8 @@
+[Core]
+Name = YouDao
+Module = youdao
+
+[Documentation]
+Author = John Beard
+Version = 0.1
+Description = YouDao search/completion Mnemories

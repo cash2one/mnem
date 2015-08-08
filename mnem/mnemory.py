@@ -112,6 +112,21 @@ class SearchMnemory(Mnemory):
 
         return tld
 
+    @staticmethod
+    def stringLongestBetween(s, l, r, keepEnds):
+        start, e  = s.find(l), s.rfind(r)
+
+        if (keepEnds):
+            e = e + len(r)
+        else:
+            start = start + len(l)
+        return s[start: e]
+
+    @staticmethod
+    def stripJsonp(jsonp):
+        return SearchMnemory.stringLongestBetween(jsonp, "(", ")", False)
+
+
     def getSearchForQuery(self, query):
         url = self.getRequestUrl(query)
         return UrlResult(query, url)
