@@ -113,6 +113,20 @@ class SearchMnemory(Mnemory):
         return tld
 
     @staticmethod
+    def domainForLocale(locale):
+
+        try:
+            domain = {
+                'uk': "uk",
+                'jp': "jp",
+                'aus': "au",
+            }[locale]
+        except KeyError:
+            domain = "us"
+
+        return domain
+
+    @staticmethod
     def stringLongestBetween(s, l, r, keepEnds):
         start, e  = s.find(l), s.rfind(r)
 
@@ -135,10 +149,9 @@ class SearchMnemory(Mnemory):
 
         try:
             data = requests.get(url_pattern % quote(query))
+            data.close()
         except urllib.request.HTTPError:
             raise CompletionFetchError(self, url_pattern, query)
-        finally:
-            data.close()
 
         return data
 
