@@ -1,6 +1,7 @@
 #!flask/bin/python3
 
 import mnem
+import argparse
 
 from flask import Flask, jsonify, abort, make_response
 from flask.ext.restful import Api, Resource, reqparse, fields, marshal
@@ -92,5 +93,19 @@ api.add_resource(MnemoryCompletionAPI, '/complete/<string:key>/<string:completio
 api.add_resource(MnemoryCompletionLocaleAPI, '/complete/<string:key>/<string:completion>/locale/<string:locale>/<string:query>', endpoint='completions_locale')
 
 if __name__ == '__main__':
-    print("Mnem server")
-    app.run(debug=True)
+
+    defualtPort = 27183
+
+    parser = argparse.ArgumentParser(description='Run the Mnem REST server')
+
+    parser.add_argument('-p', '--port', dest='port', action='store',
+                   metavar='PORT', default=defualtPort, type=int,
+                   help='the port to run the REST interface on (default=%d)' % defualtPort)
+    parser.add_argument('-d', '--debug', dest='debug', action='store_true',
+                   help='run in debug mode')
+
+    args = parser.parse_args()
+
+    print("Mnem server on port %d" % args.port)
+
+    app.run(debug=args.debug, port=args.port)
