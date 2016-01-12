@@ -82,15 +82,27 @@ class MnemoryCompletionLocaleAPI(Resource):
         return jc
 
 class MnemoryCompletionAPI(MnemoryCompletionLocaleAPI):
+    """Wrapping inheritor for given completion in defualt locale for
+    a given completion engine
+    """
 
     def get(self, key, completion, query):
         return MnemoryCompletionLocaleAPI.get(self, key, completion, query, None)
 
+class MnemoryCompletionDefaultAPI(MnemoryCompletionLocaleAPI):
+    """Wrapping inheritor for use of the default completion for a
+    completion engine
+    """
+
+    def get(self, key, query):
+        return MnemoryCompletionLocaleAPI.get(self, key, 'default', query, None)
+
 api.add_resource(MnemoryListAPI, '/mnemory', endpoint='mnemories')
 api.add_resource(MnemorySearchInfoAPI, '/search/<string:key>', endpoint='searchinfo')
 api.add_resource(MnemorySearchQueryAPI, '/search/<string:key>/query/<string:query>', endpoint='searchquery')
-api.add_resource(MnemoryCompletionAPI, '/complete/<string:key>/<string:completion>/<string:query>', endpoint='completions')
-api.add_resource(MnemoryCompletionLocaleAPI, '/complete/<string:key>/<string:completion>/locale/<string:locale>/<string:query>', endpoint='completions_locale')
+api.add_resource(MnemoryCompletionDefaultAPI, '/complete/<string:key>/<string:query>', endpoint='completions_default')
+api.add_resource(MnemoryCompletionAPI, '/complete/<string:key>/completion/<string:completion>/<string:query>', endpoint='completions')
+api.add_resource(MnemoryCompletionLocaleAPI, '/complete/<string:key>/completion/<string:completion>/locale/<string:locale>/<string:query>', endpoint='completions_locale')
 
 if __name__ == '__main__':
 
