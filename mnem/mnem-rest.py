@@ -90,12 +90,12 @@ class MnemoryCompletionLocaleAPI(Resource):
     def get(self, key, completion, query, locale):
 
         try:
-            compMnemory = m.mnemories[key](locale)
-        except KeyError:
-            return constructError('mnemory-not-found', {'mnemory': key})
+            comps = m.complete(key, completion, query, locale)
 
-        try:
-            comps = compMnemory.submitForSuggestions(completion, query)
+        except mnem.MnemoryNotFoundError as e:
+            return constructError('mnemory-not-found',
+                                  {'mnemory': e.getMnemoryKey()})
+
         except mnemory.CompletionNotAvailableError as e:
             return constructError('completion-not-found',
                                   {'completion': e.getCompletion()})

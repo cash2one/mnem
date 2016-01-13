@@ -10,6 +10,20 @@ PLUGIN_DIRS = ["plugins"]
 
 from yapsy.PluginManager import PluginManager
 
+class MnemError(Exception):
+    pass
+
+class MnemoryNotFoundError(MnemError):
+
+    def __init__(self, mnemoryKey):
+        self.key = mnemoryKey
+
+    def __str__(self):
+        return self.key
+
+    def getMnemoryKey(self):
+        return self.key
+
 class Mnem():
 
     def __init__(self):
@@ -52,10 +66,12 @@ class Mnem():
         m = self.mnemories[key](locale)
         return m.submitSearch(query)
 
-    def complete(self, key, query, locale=None):
-        if not key in self.mnemories:
-            return None
+    def complete(self, key, completion, query, locale=None):
 
-        #instantiate the search engine
-        m = self.mnemories[key](locale)
-        return m.submitForSuggestions(query)
+        try:
+            #instantiate the search engine
+            m = self.mnemories[key](locale)
+        except KeyError:
+            raise MnemoryNotFoundError(key)
+
+        return m.submitForSuggestions(completion, query)
