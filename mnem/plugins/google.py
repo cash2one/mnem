@@ -142,6 +142,27 @@ class GoogleTrendsSearch(GoogleMnemory):
 
         return res
 
+class GoogleScholarSearch(GoogleMnemory):
+
+    key = "com.google.scholar"
+    defaultAlias = "google-scholar"
+
+    def __init__(self, locale):
+        self.base = "https://www.scholar.google." + self.tldForLocale(locale)
+
+        mnemory.SearchMnemory.__init__(self, locale)
+
+    def getBaseUrl(self):
+        return self.base
+
+    def getRequestUrl(self, q):
+        return self.base + "/scholar?q=%s" % quote(q)
+
+    def availableCompletions(self):
+        """Scholar doesn't have completions
+        """
+        return []
+
 class YoutubeSearch(mnemory.SearchMnemory):
 
     key = "com.youtube.search"
@@ -176,5 +197,6 @@ class Google(mnemory.MnemPlugin):
             GoogleImageSearch,
             GoogleFinanceSearch,
             GoogleTrendsSearch,
+            GoogleScholarSearch,
             YoutubeSearch
         ]
