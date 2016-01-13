@@ -4,6 +4,7 @@ import requests
 
 import urllib.request
 from urllib.parse import quote
+import mnem
 
 import traceback
 
@@ -46,10 +47,10 @@ class Mnemory:
     def __init__(self, locale=None):
         self.locale = locale
 
-class CompletionError(Exception):
+class CompletionError(mnem.MnemError):
     pass
 
-class CompletionNotAvailableError(Exception):
+class CompletionNotAvailableError(CompletionError):
     """Exception raised when a completion is not available
     """
 
@@ -169,10 +170,11 @@ class SearchMnemory(Mnemory):
 
     def submitForSuggestions(self, completion, part):
 
-        try:
-            compl = self.getCompletions(completion, part)
-        except CompletionError as e:
-            raise e
+        if (not self.providesCompletions() or
+                completion not in self.availableCompletions()):
+            raise CompletionNotAvailableError(completion)
+
+        compl = self.getCompletions(completion, part)
 
         for c in compl:
             if not c.url:
@@ -185,9 +187,13 @@ class SearchMnemory(Mnemory):
         raise NotImplementedError
 
     def providesCompletions(self):
-        return false;
+        return len(self.availableCompletions());
 
     def getCompletions(self, completion, query):
-        raise CompletionNotAvailableError(completion)
+        """Gets the results for a a given completion on this engine
+        """
+        # shouldn't get here if the calling code if checking
+        # for validity first!
+        raise NotImplementedError
 
 

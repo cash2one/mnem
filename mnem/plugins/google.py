@@ -17,6 +17,8 @@ class GoogleMnemory(mnemory.SearchMnemory):
         return "us"
 
     def availableCompletions(self):
+        # google mnemories normally provide at least one "default"
+        # completion
         return ["default"]
 
 class GoogleSearch(GoogleMnemory):
