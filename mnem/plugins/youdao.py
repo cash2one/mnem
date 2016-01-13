@@ -18,6 +18,9 @@ class YouDaoDictSearch(mnemory.SearchMnemory):
     def getBaseUrl(self):
         return self.base
 
+    def availableCompletions(self):
+        return ["default"]
+
     def getRequestUrl(self, q):
         return "http://dict.youdao.com/search?q=%s&keyfrom=dict.index" % quote(q)
 

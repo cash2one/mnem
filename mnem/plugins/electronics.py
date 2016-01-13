@@ -20,6 +20,9 @@ class OctopartSearch(mnemory.SearchMnemory):
     def getRequestUrl(self, q):
         return self.base + "/search?q=" + quote(q)
 
+    def availableCompletions(self):
+        return ["default"]
+
     def getCompletions(self, completion, q):
 
         def parse(typ, cs):
@@ -58,6 +61,9 @@ class MouserSearch(mnemory.SearchMnemory):
     def __init__(self, locale):
         mnemory.SearchMnemory.__init__(self, None)
 
+    def availableCompletions(self):
+        return ["default"]
+
     def getBaseUrl(self):
         return "http://" + self.domainForLocale(self.locale) + ".mouser.com"
 
@@ -91,6 +97,9 @@ class FarnellSearch(mnemory.SearchMnemory):
 
     def defaultLocale(self):
         return "us"
+
+    def availableCompletions(self):
+        return ["default"]
 
     def getBaseUrl(self):
 
@@ -145,8 +154,6 @@ class FarnellSearch(mnemory.SearchMnemory):
                     desc = tr.find("td[@id='contentwrapper']/a").xpath("string()").strip()
 
                     c.append(mnemory.CompletionResult(name, url=url, category=title, description=desc))
-
-            print(title, listE)
 
         return c
 

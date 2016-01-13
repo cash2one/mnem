@@ -16,6 +16,9 @@ class WolframAlphaSearch(mnemory.SearchMnemory):
     def __init__(self, locale):
         mnemory.SearchMnemory.__init__(self, None)
 
+    def availableCompletions(self):
+        return ["default"]
+
     def getRequestUrl(self, q):
         return self.base + "/input/?i=" + quote(q)
 

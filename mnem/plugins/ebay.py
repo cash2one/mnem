@@ -15,6 +15,9 @@ class EbaySearch(mnemory.SearchMnemory):
 
         self.base = "http://ebay." + self.tldForLocale(self.locale)
 
+    def availableCompletions(self):
+        return ["default"]
+
     def getRequestUrl(self, q):
         return self.base + "/sch/i.html?_nkw=%s" % quote(q)
 

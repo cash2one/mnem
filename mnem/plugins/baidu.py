@@ -12,6 +12,9 @@ class BaiduSearch(mnemory.SearchMnemory):
         mnemory.SearchMnemory.__init__(self, None)
         self.base = "https://baidu.com"
 
+    def availableCompletions(self):
+        return ["default"]
+
     def getBaseUrl(self):
         return self.base
 
@@ -46,6 +49,7 @@ class BaiduImageSearch(BaiduSearch):
 
     def __init__(self, locale):
         BaiduSearch.__init__(self)
+
 
     def getRequestUrl(self, q):
         return "http://image.baidu.com/search/index?tn=baiduimage&word=%s" % quote(q)

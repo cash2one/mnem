@@ -182,12 +182,33 @@ class SearchMnemory(Mnemory):
 
         return compl
 
-
-    def getRequestUrl(self, query):
-        raise NotImplementedError
+    def availableCompletions(self):
+        """Return a list of available completion keys.
+        """
+        # default: doesn't provide any completions
+        return []
 
     def providesCompletions(self):
         return len(self.availableCompletions());
+
+    def getDefaultCompletion(self):
+        """Returns the fairst available completion available
+        from this search engine
+        """
+
+        comps = self.availableCompletions()
+
+        if not comps:
+            # hmm, should this be a separate error type?
+            CompletionNotAvailableError("$default")
+
+        # default is the first provided completion from availableCompletions
+        return comps[0]
+
+    def getRequestUrl(self, query):
+        """Gets the URL for a search query
+        """
+        raise NotImplementedError
 
     def getCompletions(self, completion, query):
         """Gets the results for a a given completion on this engine
