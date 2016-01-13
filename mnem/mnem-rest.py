@@ -52,11 +52,44 @@ class MnemorySearchQueryAPI(Resource):
 
         return jc
 
+ERRORS = {
+    'internal': 1,
+    'mnemory-not-found': 2
+}
+
+ERROR_STR = {
+    'internal': "Internal error",
+    'mnemory-not-found': "Mnemory not found"
+}
+
+def constructError(errKey, context):
+    """
+    Constructs a general error. Has at least the error code and
+    description string, with an optional context if you have
+    more details
+    """
+
+    try:
+        err = {'error': {
+            'code': ERRORS[errKey],
+            'str' : ERROR_STR[errKey]
+        }}
+    except KeyError:
+        # internal error if we can't even find the error key
+        return constructError('internal', "Unknown error key: %s" % errKey)
+
+    if (context):
+        err['error']['context'] = context
+    return err
 
 class MnemoryCompletionLocaleAPI(Resource):
 
     def get(self, key, completion, query, locale):
-        mnemory = m.mnemories[key](locale)
+
+        try:
+            mnemory = m.mnemories[key](locale)
+        except KeyError:
+            return constructError('mnemory-not-found', {'mnemory': key})
 
         comps = mnemory.submitForSuggestions(completion, query)
         return {'completions': [self.completionResultJson(s) for s in comps]}
