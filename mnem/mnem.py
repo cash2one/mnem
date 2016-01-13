@@ -66,7 +66,7 @@ class Mnem():
         m = self.mnemories[key](locale)
         return m.submitSearch(query)
 
-    def complete(self, key, completion, query, locale=None):
+    def complete(self, key, query, completion=None, locale=None):
 
         try:
             #instantiate the search engine

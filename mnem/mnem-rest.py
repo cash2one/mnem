@@ -87,10 +87,10 @@ def constructError(errKey, context):
 
 class MnemoryCompletionLocaleAPI(Resource):
 
-    def get(self, key, completion, query, locale):
+    def get(self, key, query, completion, locale):
 
         try:
-            comps = m.complete(key, completion, query, locale)
+            comps = m.complete(key, query, completion, locale)
 
         except mnem.MnemoryNotFoundError as e:
             return constructError('mnemory-not-found',
@@ -128,7 +128,7 @@ class MnemoryCompletionAPI(MnemoryCompletionLocaleAPI):
     """
 
     def get(self, key, completion, query):
-        return MnemoryCompletionLocaleAPI.get(self, key, completion, query, None)
+        return MnemoryCompletionLocaleAPI.get(self, key, query, completion, None)
 
 class MnemoryCompletionDefaultAPI(MnemoryCompletionLocaleAPI):
     """Wrapping inheritor for use of the default completion for a
@@ -136,7 +136,7 @@ class MnemoryCompletionDefaultAPI(MnemoryCompletionLocaleAPI):
     """
 
     def get(self, key, query):
-        return MnemoryCompletionLocaleAPI.get(self, key, 'default', query, None)
+        return MnemoryCompletionLocaleAPI.get(self, key, query, None, None)
 
 api.add_resource(MnemoryListAPI, '/mnemory', endpoint='mnemories')
 api.add_resource(MnemorySearchInfoAPI, '/search/<string:key>', endpoint='searchinfo')

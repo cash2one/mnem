@@ -170,6 +170,9 @@ class SearchMnemory(Mnemory):
 
     def submitForSuggestions(self, completion, part):
 
+        if not completion:
+            completion = self.getDefaultCompletion()
+
         if (not self.providesCompletions() or
                 completion not in self.availableCompletions()):
             raise CompletionNotAvailableError(completion)
@@ -198,12 +201,13 @@ class SearchMnemory(Mnemory):
 
         comps = self.availableCompletions()
 
-        if not comps:
+        try:
+            # default is the first provided completion from availableCompletions
+            return comps[0];
+        except IndexError:
             # hmm, should this be a separate error type?
-            CompletionNotAvailableError("$default")
+            raise CompletionNotAvailableError("$default")
 
-        # default is the first provided completion from availableCompletions
-        return comps[0]
 
     def getRequestUrl(self, query):
         """Gets the URL for a search query
