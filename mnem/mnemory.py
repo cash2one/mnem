@@ -47,8 +47,20 @@ class Mnemory:
         self.locale = locale
 
 class CompletionError(Exception):
-
     pass
+
+class CompletionNotAvailableError(Exception):
+    """Exception raised when a completion is not available
+    """
+
+    def __init__(self, completion):
+        self.completion = completion
+
+    def __str__(self):
+        return self.completion
+
+    def getCompletion(self):
+        return self.completion
 
 class CompletionFetchError(CompletionError):
 
@@ -160,7 +172,7 @@ class SearchMnemory(Mnemory):
         try:
             compl = self.getCompletions(completion, part)
         except CompletionError as e:
-            print(e)
+            raise e
 
         for c in compl:
             if not c.url:
@@ -175,7 +187,7 @@ class SearchMnemory(Mnemory):
     def providesCompletions(self):
         return false;
 
-    def getCompletions(self, query):
-        raise NotImplementedError
+    def getCompletions(self, completion, query):
+        raise CompletionNotAvailableError(completion)
 
 

@@ -1,6 +1,7 @@
 #!flask/bin/python3
 
 import mnem
+import mnemory
 import argparse
 
 from flask import Flask, jsonify, abort, make_response
@@ -54,12 +55,14 @@ class MnemorySearchQueryAPI(Resource):
 
 ERRORS = {
     'internal': 1,
-    'mnemory-not-found': 2
+    'mnemory-not-found': 2,
+    'completion-not-found': 3
 }
 
 ERROR_STR = {
     'internal': "Internal error",
-    'mnemory-not-found': "Mnemory not found"
+    'mnemory-not-found': "Mnemory not found",
+    'completion-not-found': "Completion not found",
 }
 
 def constructError(errKey, context):
@@ -87,11 +90,16 @@ class MnemoryCompletionLocaleAPI(Resource):
     def get(self, key, completion, query, locale):
 
         try:
-            mnemory = m.mnemories[key](locale)
+            compMnemory = m.mnemories[key](locale)
         except KeyError:
             return constructError('mnemory-not-found', {'mnemory': key})
 
-        comps = mnemory.submitForSuggestions(completion, query)
+        try:
+            comps = compMnemory.submitForSuggestions(completion, query)
+        except mnemory.CompletionNotAvailableError as e:
+            return constructError('completion-not-found',
+                                  {'completion': e.getCompletion()})
+
         return {'completions': [self.completionResultJson(s) for s in comps]}
 
     def completionResultJson(self, c):
