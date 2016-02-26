@@ -1,8 +1,8 @@
 #!flask/bin/python3
 
-import mnem
-import mnemory
 import argparse
+
+from mnem import mnem, mnemory
 
 from flask import Flask, jsonify, abort, make_response
 from flask.ext.restful import Api, Resource, reqparse, fields, marshal

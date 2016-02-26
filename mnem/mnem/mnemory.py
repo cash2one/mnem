@@ -4,9 +4,8 @@ import requests
 
 import urllib.request
 from urllib.parse import quote
-import mnem
 
-import traceback
+from mnem.mnem import MnemError
 
 class MnemPlugin(IPlugin):
 
@@ -47,7 +46,7 @@ class Mnemory:
     def __init__(self, locale=None):
         self.locale = locale
 
-class CompletionError(mnem.MnemError):
+class CompletionError(MnemError):
     pass
 
 class CompletionNotAvailableError(CompletionError):

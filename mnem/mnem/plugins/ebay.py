@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import mnemory
+from mnem import mnemory
 from urllib.parse import quote, unquote
 import json
 
