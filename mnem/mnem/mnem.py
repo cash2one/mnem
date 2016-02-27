@@ -5,8 +5,8 @@ import os
 import logging
 
 logging.basicConfig(level=logging.ERROR)
-
-PLUGIN_DIRS = ["plugins"]
+PLUGIN_DIRS = [os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            'plugins')]
 
 from yapsy.PluginManager import PluginManager
 
@@ -33,8 +33,9 @@ class Mnem():
 
         # Build the manager
         simplePluginManager = PluginManager()
+        
         # Tell it the default place(s) where to find plugins
-        simplePluginManager.setPluginPlaces(PLUGIN_DIRS)
+        simplePluginManager.getPluginLocator().updatePluginPlaces(PLUGIN_DIRS)
         # Load all plugins
         simplePluginManager.collectPlugins()
 

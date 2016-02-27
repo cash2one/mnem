@@ -1,0 +1,79 @@
+{
+    "completions": [
+        {
+            "desc": "Caterpillar Inc. - NYSE",
+            "keyword": "CAT",
+            "url": "https://www.google.com/finance?q=CAT"
+        },
+        {
+            "desc": "Catalyst Pharmaceuticals Inc - NASDAQ",
+            "keyword": "CPRX",
+            "url": "https://www.google.com/finance?q=CPRX"
+        },
+        {
+            "desc": "Mad Catz Interactive, Inc. (USA) - NYSEMKT",
+            "keyword": "MCZ",
+            "url": "https://www.google.com/finance?q=MCZ"
+        },
+        {
+            "desc": "Mad Catz Interactive, Inc. - TSE",
+            "keyword": "MCZ",
+            "url": "https://www.google.com/finance?q=MCZ"
+        },
+        {
+            "desc": "Catalyst Biosciences Inc - NASDAQ",
+            "keyword": "CBIO",
+            "url": "https://www.google.com/finance?q=CBIO"
+        },
+        {
+            "desc": "Cardtronics, Inc. - NASDAQ",
+            "keyword": "CATM",
+            "url": "https://www.google.com/finance?q=CATM"
+        },
+        {
+            "desc": "Arctic Cat Inc - NASDAQ",
+            "keyword": "ACAT",
+            "url": "https://www.google.com/finance?q=ACAT"
+        },
+        {
+            "desc": "Catamaran Corp (USA) - NASDAQ",
+            "keyword": "CTRX",
+            "url": "https://www.google.com/finance?q=CTRX"
+        },
+        {
+            "desc": "Catalyst Health Solutions, Inc. - NASDAQ",
+            "keyword": "CHSI",
+            "url": "https://www.google.com/finance?q=CHSI"
+        },
+        {
+            "desc": "Cathay General Bancorp - NASDAQ",
+            "keyword": "CATY",
+            "url": "https://www.google.com/finance?q=CATY"
+        },
+        {
+            "desc": "Cato Corp - NYSE",
+            "keyword": "CATO",
+            "url": "https://www.google.com/finance?q=CATO"
+        },
+        {
+            "desc": "Catalyst Copper Corp - CVE",
+            "keyword": "CCY",
+            "url": "https://www.google.com/finance?q=CCY"
+        },
+        {
+            "desc": "Catalent Inc - NYSE",
+            "keyword": "CTLT",
+            "url": "https://www.google.com/finance?q=CTLT"
+        },
+        {
+            "desc": "Cathay Pacific Airways Limited - HKG",
+            "keyword": "0293",
+            "url": "https://www.google.com/finance?q=0293"
+        },
+        {
+            "desc": "Papeteries Catala SA - EBR",
+            "keyword": "CAT",
+            "url": "https://www.google.com/finance?q=CAT"
+        }
+    ]
+}
