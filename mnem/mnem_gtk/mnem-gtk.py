@@ -25,12 +25,12 @@ import webbrowser
 
 class ResultContainer(Gtk.HBox):
 
-    def __init__(self, result):
+    def __init__(self, result, selected_listener):
         super(ResultContainer, self).__init__(
             name="result"
         )
 
-        self.selected = False
+        self.selected_listener = selected_listener
         self.set_homogeneous(False)
 
         try:
@@ -51,21 +51,17 @@ class ResultContainer(Gtk.HBox):
 
         self.pack_end(urlLabel, expand=False, fill=True, padding=100)
 
-        self.set_can_focus(True)
+        # self.set_can_focus(True)
 
-        self.connect("focus-in-event", self.on_focus)
-        self.connect("key-press-event", self.on_keypress)
+        # self.connect("focus-in-event", self.on_focus)
 
-    def on_focus(self, widget, ev):
+    def select(self, selected):
 
-        print(self.is_focus(), self.keyword)
-
-    def on_keypress(self, widget, ev):
-
-        if ev.keyval == Gdk.KEY_Return:
-            print(ev, self.keyword)
-
-            self.perform_main_action()
+        if selected:
+            self.get_style_context().add_class("selected")
+            self.selected_listener.keyword_selected(self.keyword)
+        else:
+            self.get_style_context().remove_class("selected")
 
     def perform_main_action(self):
 
@@ -76,9 +72,10 @@ class ResultContainer(Gtk.HBox):
 
 class ResultListBox(Gtk.VBox):
 
-    def __init__(self):
+    def __init__(self, selection_listener):
         super(ResultListBox, self).__init__()
 
+        self.selection_listener = selection_listener
         self.results = []
         self.reset()
 
@@ -96,12 +93,19 @@ class ResultListBox(Gtk.VBox):
 
     def add_completion(self, c):
 
-        resCont = ResultContainer(c)
+        resCont = ResultContainer(c, self.selection_listener)
 
         self.results.append(resCont)
 
         self.pack_start(resCont, expand=False, fill=False, padding=0)
         resCont.show()
+
+    def confirm_entry(self):
+
+        try:
+            self.results[self.focussed].perform_main_action()
+        except IndexError:
+            pass
 
     def select_next(self):
 
@@ -113,7 +117,8 @@ class ResultListBox(Gtk.VBox):
         if self.focussed >= len(self.results):
             self.focussed = 0
 
-        self.results[self.focussed].select(True)
+        if self.focussed < len(self.results):
+            self.results[self.focussed].select(True)
 
 
 class MnemAppWindow(Gtk.Window):
@@ -127,7 +132,7 @@ class MnemAppWindow(Gtk.Window):
         style_provider = Gtk.CssProvider()
 
         css = """
-#result:focus{
+#result.selected{
     background-color: #77f;
 }
 """
@@ -143,6 +148,8 @@ class MnemAppWindow(Gtk.Window):
         self.create_layout()
 
         self.show_all()
+
+        self.get_window().set_decorations(Gdk.WMDecoration.BORDER)
 
     def bind_signals(self):
         signal.signal(signal.SIGINT, self.signal_stop_received)  # 9
@@ -172,33 +179,54 @@ class MnemAppWindow(Gtk.Window):
 
         self.main_box = Gtk.VBox()
 
-        main_input = Gtk.Entry()
-        main_input.connect('changed', self.search_changed)
+        self.main_input = Gtk.Entry()
+        self.entry_change_sigid = self.main_input.connect(
+            'changed', self.search_changed)
 
         self.main_box.pack_start(
-            main_input, expand=False, fill=False, padding=0)
+            self.main_input, expand=False, fill=False, padding=0)
 
-        self.completions = ResultListBox()
+        self.completions = ResultListBox(self)
         self.main_box.add(self.completions)
 
         self.add(self.main_box)
 
-        #self.connect('key-press-event', self.key_press)
+        self.connect('key-press-event', self.key_press)
 
     def key_press(self, widget, event):
 
         if event.keyval == Gdk.KEY_Tab:
             self.handle_tab()
+        elif event.keyval == Gdk.KEY_Return:
+            self.handle_enter()
 
     def handle_tab(self):
         print("Tab")
         self.completions.select_next()
 
-    def search_changed(self, entry):
+    def handle_enter(self):
+        print("Enter")
+        self.completions.confirm_entry()
 
-        search = entry.get_text()
+    def keyword_selected(self, keyword):
 
-        parts = search.split(" ", 1)
+        text = self.main_input.get_text()
+
+        key, query = self.get_key_query(text)
+
+        self.main_input.disconnect(self.entry_change_sigid)
+        self.set_key_query(key, keyword)
+        self.entry_change_sigid = self.main_input.connect(
+            'changed', self.search_changed)
+
+    def set_key_query(self, key, query):
+        self.main_input.set_text("%s %s" % (key, query))
+        self.main_input.set_position(-1)  # end
+        self.main_input.select_region(0, 0)
+
+    def get_key_query(self, text):
+
+        parts = text.split(" ", 1)
 
         if not parts:
             return
@@ -209,6 +237,14 @@ class MnemAppWindow(Gtk.Window):
         else:
             key = parts[0]
             query = parts[1]
+
+        return key, query
+
+    def search_changed(self, entry):
+
+        search = entry.get_text()
+
+        key, query = self.get_key_query(search)
 
         self.perform_search(key, query)
 
