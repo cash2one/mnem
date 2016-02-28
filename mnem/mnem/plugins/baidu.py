@@ -6,6 +6,7 @@ from mnem import mnemory
 from urllib.parse import quote, unquote
 import json
 
+
 class BaiduSearch(mnemory.SearchMnemory):
 
     def __init__(self):
@@ -17,6 +18,7 @@ class BaiduSearch(mnemory.SearchMnemory):
 
     def getBaseUrl(self):
         return self.base
+
 
 class BaiduWebSearch(BaiduSearch):
 
@@ -40,6 +42,7 @@ class BaiduWebSearch(BaiduSearch):
 
         return [mnemory.CompletionResult(c) for c in t['s']]
 
+
 class BaiduImageSearch(BaiduSearch):
 
     key = "com.baidu.imagesearch"
@@ -49,7 +52,6 @@ class BaiduImageSearch(BaiduSearch):
 
     def __init__(self, locale):
         BaiduSearch.__init__(self)
-
 
     def getRequestUrl(self, q):
         return "http://image.baidu.com/search/index?tn=baiduimage&word=%s" % quote(q)
@@ -64,6 +66,7 @@ class BaiduImageSearch(BaiduSearch):
         print(result)
 
         return [mnemory.CompletionResult(c) for c in result]
+
 
 class Baidu(mnemory.MnemPlugin):
 

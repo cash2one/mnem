@@ -7,13 +7,16 @@ from urllib.parse import quote
 
 from mnem.mnem import MnemError
 
+
 class MnemPlugin(IPlugin):
 
     def get_name(self):
         raise NotImplementedError
 
+
 class SearchResult:
     pass
+
 
 class UrlResult(SearchResult):
 
@@ -23,6 +26,7 @@ class UrlResult(SearchResult):
 
     def __str__(self):
         return self.uri
+
 
 class CompletionResult(SearchResult):
 
@@ -39,6 +43,7 @@ class CompletionResult(SearchResult):
             s += " (%s)" % self.category
         return s
 
+
 class Mnemory:
 
     defaultAlias = ""
@@ -46,8 +51,10 @@ class Mnemory:
     def __init__(self, locale=None):
         self.locale = locale
 
+
 class CompletionError(MnemError):
     pass
+
 
 class CompletionNotAvailableError(CompletionError):
     """Exception raised when a completion is not available
@@ -62,6 +69,7 @@ class CompletionNotAvailableError(CompletionError):
     def getCompletion(self):
         return self.completion
 
+
 class CompletionFetchError(CompletionError):
 
     def __init__(self, engine, url, query):
@@ -72,6 +80,7 @@ class CompletionFetchError(CompletionError):
     def __str__(self):
         return "%s\n%s\n%s" % (self.engine, self.url, self.query)
 
+
 class CompletionParseError(CompletionError):
 
     def __init__(self, engine, data, innerExcept):
@@ -81,6 +90,7 @@ class CompletionParseError(CompletionError):
 
     def __str__(self):
         return "%s\n%s\n%s" % (self.engine, self.data, self.innerExcept)
+
 
 class SearchMnemory(Mnemory):
 
@@ -106,7 +116,7 @@ class SearchMnemory(Mnemory):
             tld = {
                 'uk': 'co.uk',
                 'fr': 'fr'
-                }[locale]
+            }[locale]
         except KeyError:
             tld = 'com'
 
@@ -118,7 +128,7 @@ class SearchMnemory(Mnemory):
             tld = {
                 'uk': 'en',
                 'fr': 'fr'
-                }[locale]
+            }[locale]
         except KeyError:
             tld = 'en'
 
@@ -140,7 +150,7 @@ class SearchMnemory(Mnemory):
 
     @staticmethod
     def stringLongestBetween(s, l, r, keepEnds):
-        start, e  = s.find(l), s.rfind(r)
+        start, e = s.find(l), s.rfind(r)
 
         if (keepEnds):
             e = e + len(r)
@@ -152,7 +162,6 @@ class SearchMnemory(Mnemory):
     def stripJsonp(jsonp):
         return SearchMnemory.stringLongestBetween(jsonp, "(", ")", False)
 
-
     def getSearchForQuery(self, query):
         url = self.getRequestUrl(query)
         return UrlResult(query, url)
@@ -160,9 +169,9 @@ class SearchMnemory(Mnemory):
     def load_from_url(self, url_pattern, query):
 
         try:
-            data = requests.get(url_pattern % quote(query))
+            data = requests.get(url_pattern % quote(query), timeout=1)
             data.close()
-        except urllib.request.HTTPError:
+        except (urllib.request.HTTPError, requests.exceptions.Timeout):
             raise CompletionFetchError(self, url_pattern, query)
 
         return data
@@ -191,7 +200,7 @@ class SearchMnemory(Mnemory):
         return []
 
     def providesCompletions(self):
-        return len(self.availableCompletions());
+        return len(self.availableCompletions())
 
     def getDefaultCompletion(self):
         """Returns the fairst available completion available
@@ -201,12 +210,12 @@ class SearchMnemory(Mnemory):
         comps = self.availableCompletions()
 
         try:
-            # default is the first provided completion from availableCompletions
-            return comps[0];
+            # default is the first provided completion from
+            # availableCompletions
+            return comps[0]
         except IndexError:
             # hmm, should this be a separate error type?
             raise CompletionNotAvailableError("$default")
-
 
     def getRequestUrl(self, query):
         """Gets the URL for a search query
@@ -219,5 +228,3 @@ class SearchMnemory(Mnemory):
         # shouldn't get here if the calling code if checking
         # for validity first!
         raise NotImplementedError
-
-
