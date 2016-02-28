@@ -35,4 +35,8 @@ class MnemRestClient(object):
         if d.status_code != 200:
             return []
         
-        return d.text
+        try:
+            return d.json()
+        except:
+            print("Json parse failed")
+            return {}
