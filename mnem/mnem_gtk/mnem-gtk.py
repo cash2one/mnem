@@ -195,7 +195,7 @@ class MnemAppWindow(Gtk.Window):
 
     def key_press(self, widget, event):
 
-        if event.keyval == Gdk.KEY_Tab:
+        if event.keyval == Gdk.KEY_Tab or event.keyval == Gdk.KEY_Down:
             self.handle_tab()
         elif event.keyval == Gdk.KEY_Return:
             self.handle_enter()
