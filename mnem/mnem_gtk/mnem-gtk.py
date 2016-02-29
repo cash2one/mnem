@@ -221,8 +221,8 @@ class MnemAppWindow(Gtk.Window):
 
     def set_key_query(self, key, query):
         self.main_input.set_text("%s %s" % (key, query))
-        self.main_input.set_position(-1)  # end
-        self.main_input.select_region(0, 0)
+        #self.main_input.set_position(-1)  # end
+        self.main_input.select_region(-1, -1)
 
     def get_key_query(self, text):
 
