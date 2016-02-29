@@ -109,8 +109,10 @@ class ResultListBox(Gtk.VBox):
 
     def select_next(self):
 
-        if self.focussed >= 0:
+        try:
             self.results[self.focussed].select(False)
+        except IndexError:
+            pass
 
         self.focussed += 1
 
@@ -120,6 +122,20 @@ class ResultListBox(Gtk.VBox):
         if self.focussed < len(self.results):
             self.results[self.focussed].select(True)
 
+    def select_prev(self):
+
+        try:
+            self.results[self.focussed].select(False)
+        except IndexError:
+            pass
+
+        self.focussed -= 1
+
+        # if no focus or last, go to the end
+        if self.focussed < 0:
+            self.focussed = len(self.results) - 1
+
+        self.results[self.focussed].select(True)
 
 class MnemAppWindow(Gtk.Window):
 
@@ -195,19 +211,31 @@ class MnemAppWindow(Gtk.Window):
 
     def key_press(self, widget, event):
 
-        if event.keyval == Gdk.KEY_Tab or event.keyval == Gdk.KEY_Down:
-            self.handle_tab()
+        shift = event.state & Gdk.ModifierType.SHIFT_MASK
+
+        if event.keyval == Gdk.KEY_Tab or event.keyval == Gdk.KEY_ISO_Left_Tab:
+
+            if event.keyval == Gdk.KEY_ISO_Left_Tab:
+                self.handle_cycle(False)
+            else:
+                self.handle_cycle(not shift)
+
+        elif event.keyval == Gdk.KEY_Down or event.keyval == Gdk.KEY_Up:
+            self.handle_cycle(event.keyval == Gdk.KEY_Down)
+
         elif event.keyval == Gdk.KEY_Return:
             self.handle_enter()
+
         elif event.keyval == Gdk.KEY_Escape:
             self.iconify()
 
-    def handle_tab(self):
-        print("Tab")
-        self.completions.select_next()
+    def handle_cycle(self, forward):
+        if forward:
+            self.completions.select_next()
+        else:
+            self.completions.select_prev()
 
     def handle_enter(self):
-        print("Enter")
         self.completions.confirm_entry()
 
     def keyword_selected(self, keyword):
