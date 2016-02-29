@@ -199,6 +199,8 @@ class MnemAppWindow(Gtk.Window):
             self.handle_tab()
         elif event.keyval == Gdk.KEY_Return:
             self.handle_enter()
+        elif event.keyval == Gdk.KEY_Escape:
+            self.iconify()
 
     def handle_tab(self):
         print("Tab")
