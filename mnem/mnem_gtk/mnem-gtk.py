@@ -84,7 +84,7 @@ class ResultListBox(Gtk.VBox):
         for r in self.results:
             r.destroy()
 
-        self.results.clear()
+        self.results = []
 
         self.reset()
 
@@ -291,7 +291,7 @@ class MnemAppWindow(Gtk.Window):
         try:
             key = key_map[key]
         except KeyError:
-            key = "google"
+            key = self.client.cfg.get('complete', 'default', fallback='google')
 
         try:
             comps = self.client.getCompletions(key, None, query)

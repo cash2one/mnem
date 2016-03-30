@@ -6,14 +6,18 @@ Created on 26 Feb 2016
 
 import requests
 
+import mnem_rest_client.client_config as config
+
 class MnemRestClient(object):
     '''
     A client to a Mnem REST server
     '''
 
     def __init__(self, serverUrl):
-        '''
-        '''
+        
+        cfg = config.ClientConfig()
+        cfg.load_user_config()
+        self.cfg = cfg.parser()
         
         self.url = serverUrl
         
