@@ -58,6 +58,13 @@ class Mnem():
                 # TODO: allow to override aliases by configs?
                 self.mnemories[getKey(m)] = m
 
+    def dump_mnemories(self):
+
+        import pprint
+
+        p = pprint.PrettyPrinter()
+        p.pprint(self.mnemories)
+
     def search(self, key, query, locale=None):
 
         if not key in self.mnemories:

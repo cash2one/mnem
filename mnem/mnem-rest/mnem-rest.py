@@ -14,7 +14,7 @@ m.load_plugins()
 
 app = Flask(__name__, static_url_path="")
 api = Api(app)
-print(m.mnemories)
+m.dump_mnemories()
 
 class MnemoryListAPI(Resource):
 
