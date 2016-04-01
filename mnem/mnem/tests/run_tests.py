@@ -6,12 +6,7 @@ Created on 1 Apr 2016
 
 import unittest
 
-from mnem.tests.plugin_tests import google
-
-def main():
-    suite = unittest.TestLoader().loadTestsFromTestCase(google.GoogleTest)
-
-    unittest.TextTestRunner().run(suite)
+from mnem.tests.plugin_tests import google, yahoo
 
 if __name__ == '__main__':
-    main()
+    unittest.main()

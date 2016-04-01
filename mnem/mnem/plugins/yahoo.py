@@ -4,8 +4,7 @@
 from mnem import mnemory
 
 from urllib.parse import quote
-from lxml.etree import fromstring
-
+from json import loads
 
 class YahooSearch(mnemory.SearchMnemory):
 
@@ -25,7 +24,7 @@ class YahooWebSearch(YahooSearch):
     key = "com.yahoo.websearch"
     defaultAlias = "yahoo"
 
-    _completionPat = "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?pq=%s"
+    _completionPat = "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&command=%s"
 
     def __init__(self, locale):
         YahooSearch.__init__(self)
@@ -33,13 +32,14 @@ class YahooWebSearch(YahooSearch):
     def getRequestUrl(self, q):
         return self.base + "/search?p=%s" % quote(q)
 
-    def getCompletions(self, completion, q):
+    def defaultCompletionLoader(self, completion):
+        return mnemory.UrlCompletionDataLoader(self._completionPat)
 
-        result = self.load_from_url(self._completionPat, q).text
+    def getCompletions(self, data):
 
-        x = fromstring(result)
+        j = loads(data)
 
-        comps = [s.attrib['k'] for s in x if s.tag == 's']
+        comps = [c['k'] for c in j['r']]
 
         return [mnemory.CompletionResult(c) for c in comps]
 
