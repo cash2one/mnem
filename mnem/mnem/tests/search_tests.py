@@ -17,12 +17,7 @@ class SearchTest(unittest.TestCase):
 
         return FileCompletionLoader(filename)
 
-    def assertAtLeastNCompls(self, engine, query, num,
-                                 completion=None, compl_fetcher=None):
-        """
-        Asserts that the given engine and parameters returns at least this
-        many results
-        """
+    def getCompls(self, engine, query, completion=None, compl_fetcher=None):
 
         if compl_fetcher:
             engine.setCompletionLoader(compl_fetcher)
@@ -33,8 +28,20 @@ class SearchTest(unittest.TestCase):
         else:
             c = None
 
+        return c
+
+    def assertAtLeastNCompls(self, engine, query, num,
+                                 completion=None, compl_fetcher=None):
+        """
+        Asserts that the given engine and parameters returns at least this
+        many results
+        """
+        c = self.getCompls(engine, query, completion, compl_fetcher)
+
         self.assertTrue(c is not None)
         self.assertGreaterEqual(len(c), num)
+
+
 
 def expectNResults(num=DEFAULT_MIN_RESULTS):
     def expectSomeResults(f):

@@ -239,6 +239,12 @@ class SearchMnemory(Mnemory):
                 completion not in self.availableCompletions()):
             raise CompletionNotAvailableError(completion)
 
+        # occasionally, completions for certain queries might be impossible
+        # and we might be abl to catch them early rather than waiting for a
+        # query to fail
+        if not self.providesCompletionsForQuery(query, completion):
+            return []
+
         # get the loader to use (default unless overriden)
         if self.compl_loader:
             loader = self.compl_loader
@@ -258,6 +264,10 @@ class SearchMnemory(Mnemory):
     def defaultCompletionLoader(self, completion):
         # define this in the inheritor
         raise NotImplementedError
+
+    def providesCompletionsForQuery(self, query, completion):
+        # default case is always make the call for completions
+        return True
 
     def availableCompletions(self):
         """Return a list of available completion keys.
