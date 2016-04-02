@@ -3,6 +3,7 @@
 
 from mnem import mnemory
 
+from json import loads
 from urllib.parse import quote
 
 class AmazonSearch(mnemory.SearchMnemory):
@@ -28,8 +29,7 @@ class AmazonSearch(mnemory.SearchMnemory):
     def getRequestUrl(self, q):
         return "http://" + self.base + "/s/?field-keywords=" + quote(q)
 
-    def getCompletions(self, completion, q):
-
+    def defaultCompletionLoader(self, completion):
         mkts = {
             'uk' : '3'
         }
@@ -38,10 +38,17 @@ class AmazonSearch(mnemory.SearchMnemory):
 
         url = "https://completion." + self.base + "/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=" + mkt + "&q=%s"
 
-        data = self.load_from_url(url, q)
-        data = data.json()
+        return mnemory.UrlCompletionDataLoader(url)
 
-        return [mnemory.CompletionResult(x) for x in data[1]]
+    def getCompletions(self, data):
+        data = loads(data)
+
+        # the basic completions - not the "node" results
+        simple_compls = data[1]
+
+        compls = [mnemory.CompletionResult(x) for x in simple_compls]
+
+        return compls
 
 class Amazon(mnemory.MnemPlugin):
 

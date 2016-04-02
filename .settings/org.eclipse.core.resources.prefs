@@ -1,4 +1,10 @@
 eclipse.preferences.version=1
+encoding//mnem/mnem/plugins/amazon.py=utf-8
 encoding//mnem/mnem/plugins/baidu.py=utf-8
+encoding//mnem/mnem/plugins/ebay.py=utf-8
+encoding//mnem/mnem/plugins/electronics.py=utf-8
+encoding//mnem/mnem/plugins/google.py=utf-8
+encoding//mnem/mnem/plugins/mediawiki.py=utf-8
 encoding//mnem/mnem/plugins/wolframalpha.py=utf-8
 encoding//mnem/mnem/plugins/yahoo.py=utf-8
+encoding//mnem/mnem/plugins/youdao.py=utf-8

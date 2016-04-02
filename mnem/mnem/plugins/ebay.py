@@ -21,7 +21,7 @@ class EbaySearch(mnemory.SearchMnemory):
     def getRequestUrl(self, q):
         return self.base + "/sch/i.html?_nkw=%s" % quote(q)
 
-    def getCompletions(self, completion, q):
+    def defaultCompletionLoader(self, completion):
 
         if self.locale == "uk":
             sid = '3'
@@ -30,7 +30,10 @@ class EbaySearch(mnemory.SearchMnemory):
 
         url = "http://autosug.ebaystatic.com/autosug?kwd=%s&sId=" + sid
 
-        result = self.load_from_url(url, q).text
+        return mnemory.UrlCompletionDataLoader(url)
+
+    def getCompletions(self, result):
+
         result = self.stripJsonp(result)
         result = json.loads(result)
 

@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from mnem import mnemory
-from urllib.parse import quote, unquote
-import json
+
+from urllib.parse import quote
+from json import loads
 
 from lxml.html import fromstring
 
@@ -14,7 +15,7 @@ class OctopartSearch(mnemory.SearchMnemory):
 
     base = "https://octopart.com"
 
-    def __init__(self, locale):
+    def __init__(self, locale=None):
         mnemory.SearchMnemory.__init__(self, None)
 
     def getRequestUrl(self, q):
@@ -23,13 +24,19 @@ class OctopartSearch(mnemory.SearchMnemory):
     def availableCompletions(self):
         return ["default"]
 
-    def getCompletions(self, completion, q):
+    def defaultCompletionLoader(self, completion):
+        apikey = "6911d9b3"  # FIXME this presumably rotates...
+        url = "https://octopart.com/api/v3/suggest?apikey=" + apikey + "&q=%s&grouped=true"
+
+        return mnemory.UrlCompletionDataLoader(url)
+
+    def getCompletions(self, result):
 
         def parse(typ, cs):
             res = []
             for c in cs:
                 if typ == "query":
-                    url = None #use the req url
+                    url = None  # use the req url
                 elif typ == "part" or typ == "brand":
                     url = self.base + c['octopart_url']
                 elif typ == "category":
@@ -41,10 +48,7 @@ class OctopartSearch(mnemory.SearchMnemory):
                 res.append(mnemory.CompletionResult(c['text'], url=url, category=typ))
             return res
 
-        apikey = "6911d9b3" # FIXME this presumably rotates...
-        url = "https://octopart.com/api/v3/suggest?apikey=" + apikey + "&q=%s&grouped=true"
-
-        result = self.load_from_url(url, q).json()
+        result = loads(result)
 
         c = [];
 
@@ -70,22 +74,23 @@ class MouserSearch(mnemory.SearchMnemory):
     def getRequestUrl(self, q):
         return self.getBaseUrl() + "/Search/Refine.aspx?Keyword=%s" % quote(q)
 
-    def getCompletions(self, completion, q):
+    def defaultCompletionLoader(self, completion):
+        api = self.getBaseUrl() + "/ajax/autosuggestion.ashx?q=%s"
+        return mnemory.UrlCompletionDataLoader(api)
+
+    def getCompletions(self, data):
 
         def parse(entry):
 
             kwd, uid = entry['value'].split("##", 1)
 
-            return mnemory.CompletionResult(kwd.strip(), url= uidUrl % uid)
+            return mnemory.CompletionResult(kwd.strip(), url=uidUrl % uid)
 
-        api = self.getBaseUrl() + "/ajax/autosuggestion.ashx?q=%s"
         uidUrl = self.getBaseUrl() + "/Search/Refine.aspx?N=%s"
 
-        result = self.load_from_url(api, q).json()
+        data = loads(data)
 
-        print(result)
-
-        return [parse(e) for e in result]
+        return [parse(e) for e in data]
 
 class FarnellSearch(mnemory.SearchMnemory):
 
@@ -93,7 +98,7 @@ class FarnellSearch(mnemory.SearchMnemory):
     defaultAlias = "farnell"
 
     def __init__(self, locale):
-        mnemory.SearchMnemory.__init__(self, None)
+        mnemory.SearchMnemory.__init__(self, locale)
 
     def defaultLocale(self):
         return "us"
@@ -111,16 +116,17 @@ class FarnellSearch(mnemory.SearchMnemory):
     def getRequestUrl(self, q):
         return self.getBaseUrl() + "/Search?st=%s" % quote(q)
 
-    def getCompletions(self, completion, q):
-
-        if (len(q) <= 2):
-            # this API doesn't work for short queries
-            return []
-
+    def defaultCompletionLoader(self, completion):
         api = self.getBaseUrl() + "/webapp/wcs/stores/servlet/AjaxSearchLookAhead?searchTerm=%s"
+        return mnemory.UrlCompletionDataLoader(api)
 
-        result = self.load_from_url(api, q)
-        root = fromstring(result.text)
+    def getCompletions(self, data):
+
+        # if (len(q) <= 2):
+            # this API doesn't work for short queries
+        #   return []
+
+        root = fromstring(data)
 
         headings = root.findall("div")[1:-1]
 
@@ -144,7 +150,7 @@ class FarnellSearch(mnemory.SearchMnemory):
 
                     c.append(mnemory.CompletionResult(name, url=url, category=title, description=desc))
 
-            else: # this is a product table
+            else:  # this is a product table
                 for tr in listE.findall(".//tr"):
                     left = tr.find("td[@id='leftcolumn']/a")
 

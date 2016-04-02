@@ -27,15 +27,14 @@ class BaiduWebSearch(BaiduSearch):
 
     _completionPat = "http://suggestion.baidu.com/su?wd=%s&json=1"
 
-    def __init__(self, locale):
+    def __init__(self, locale=None):
         BaiduSearch.__init__(self)
 
     def getRequestUrl(self, q):
         return self.base + "/s?wd=%s" % quote(q)
 
-    def getCompletions(self, completion, q):
+    def getCompletions(self, result):
 
-        result = self.load_from_url(self._completionPat, q).text
         result = self.stripJsonp(result)
 
         t = json.loads(result)
@@ -50,20 +49,20 @@ class BaiduImageSearch(BaiduSearch):
 
     _completionPat = "http://nssug.baidu.com/su?wd=%s&prod=image"
 
-    def __init__(self, locale):
+    def __init__(self, locale=None):
         BaiduSearch.__init__(self)
 
     def getRequestUrl(self, q):
         return "http://image.baidu.com/search/index?tn=baiduimage&word=%s" % quote(q)
 
-    def getCompletions(self, completion, q):
+    def defaultCompletionLoader(self, completion):
+        return mnemory.UrlCompletionDataLoader(self._completionPat)
+
+    def getCompletions(self, result):
 
         # ugh, no quotes in the "JSON", jsut load the array
-        result = self.load_from_url(self._completionPat, q).text
         result = self.stringLongestBetween(result, "[", "]", True)
         result = json.loads(result)
-
-        print(result)
 
         return [mnemory.CompletionResult(c) for c in result]
 

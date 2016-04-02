@@ -10,7 +10,7 @@ class YouDaoDictSearch(mnemory.SearchMnemory):
     key = "com.youdao.dict.search"
     defaultAlias = "youdao"
 
-    def __init__(self, locale):
+    def __init__(self, locale=None):
         mnemory.SearchMnemory.__init__(self, None)
 
         self.base = "https://dict.youdao.com"
@@ -24,17 +24,18 @@ class YouDaoDictSearch(mnemory.SearchMnemory):
     def getRequestUrl(self, q):
         return "http://dict.youdao.com/search?q=%s&keyfrom=dict.index" % quote(q)
 
-    def getCompletions(self, completion, q):
+    def defaultCompletionLoader(self, completion):
 
         url = "http://dsuggest.ydstatic.com/suggest/suggest.s?query=%s"
+        return mnemory.UrlCompletionDataLoader(url)
+
+    def getCompletions(self, data):
 
         cs = []
 
-        t = self.load_from_url(url, q).text
-
         # this is pretty ugly but it gets us the right results
-        for r in t.split("this.txtBox.value%3D")[1:]:
-            quoted = r.split("%22",1)[0]
+        for r in data.split("this.txtBox.value%3D")[1:]:
+            quoted = r.split("%22", 1)[0]
             cs.append(unquote(quoted))
 
         return [mnemory.CompletionResult(c) for c in cs]

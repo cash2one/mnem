@@ -1,0 +1,188 @@
+<!-- Flag to determine if store offers display of aggregated records --><!-- STATUS=OK -->
+		
+		<div class="row hideSuggestRow">
+			<a id="hideSuggestions"><span class="pfIcon pfMinus">&nbsp;</span>Hide suggestions</a>
+		</div>
+		<!-- OT:85517 Change the sequence of lookahead category,manufacture then product -->
+			<div class="row">
+				<p>Product Categories</p>
+			</div>
+			<ul>
+		    <table class="product_cate">
+				
+			        <tr>
+					<td>
+					
+								<a href="http://uk.farnell.com/av-over-cat-5?searchRef=SearchLookAhead">
+						Security & Audio Visual > Audio Visual Equipment & Accessories > AV Over <span class="lookaheadHighlight">CAT</span> 5</a></td></tr>
+				
+			        <tr>
+					<td>
+					
+								<a href="http://uk.farnell.com/switches_uncategorised?searchRef=SearchLookAhead">
+						Switches & Relays > Switches > Un<span class="lookaheadHighlight">cat</span>egorised</a></td></tr>
+				
+				</table>
+			</ul>
+		
+			<div class="row">
+				<p>Products</p>
+			</div>
+			<div id="LookAheadProdIdContainer">
+			<ul>
+			<table class="searchBoxResultTable">
+					
+					
+					    <tr>
+ 					    <td id="leftcolumn">
+		 					    
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=CAT16-103J4LF&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList"><span class="lookaheadHighlight">CAT</span>16-103J4LF</a>
+													
+ 					    </td>
+						<td id="pipeline">|</td>
+ 						<td id="contentwrapper">
+		 					
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=CAT16-103J4LF&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">4&nbsp;products found in&nbsp;Passive Components</a>														
+													
+ 						</td>
+ 					</tr>
+ 						
+					
+					    <tr>
+ 					    <td id="leftcolumn">
+		 					    
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMAJ170CA-TR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">SMAJ170<span class="lookaheadHighlight">C</span><span class="lookaheadHighlight">A</span>-<span class="lookaheadHighlight">T</span>R</a>
+													
+ 					    </td>
+						<td id="pipeline">|</td>
+ 						<td id="contentwrapper">
+		 					
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMAJ170CA-TR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">2&nbsp;products found in&nbsp;Circuit Protection</a>														
+													
+ 						</td>
+ 					</tr>
+ 						
+					
+					    <tr>
+ 					    <td id="leftcolumn">
+		 					    
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMAJ58CA-TR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">SMAJ58<span class="lookaheadHighlight">C</span><span class="lookaheadHighlight">A</span>-<span class="lookaheadHighlight">T</span>R</a>
+													
+ 					    </td>
+						<td id="pipeline">|</td>
+ 						<td id="contentwrapper">
+		 					
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMAJ58CA-TR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">3&nbsp;products found in&nbsp;Circuit Protection</a>														
+													
+ 						</td>
+ 					</tr>
+ 						
+					
+					    <tr>
+ 					    <td id="leftcolumn">
+		 					    
+												<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=ZCAT3035-1330&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151" id="searchResultProductList">Z<span class="lookaheadHighlight">CAT</span>3035-1330</a>
+											
+ 					    </td>
+						<td id="pipeline">|</td>
+ 						<td id="contentwrapper">
+		 					
+												<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=ZCAT3035-1330&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151" id="searchResultProductList">TDK ZCAT3035-1330 FERRITE CORE, SPLIT, 13MM, 150 OHM</a>
+											
+ 						</td>
+ 					</tr>
+ 						
+					
+					    <tr>
+ 					    <td id="leftcolumn">
+		 					    
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMBJ33CA-TR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">SMBJ33<span class="lookaheadHighlight">C</span><span class="lookaheadHighlight">A</span>-<span class="lookaheadHighlight">T</span>R</a>
+													
+ 					    </td>
+						<td id="pipeline">|</td>
+ 						<td id="contentwrapper">
+		 					
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMBJ33CA-TR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">3&nbsp;products found in&nbsp;Circuit Protection</a>														
+													
+ 						</td>
+ 					</tr>
+ 						
+					
+					    <tr>
+ 					    <td id="leftcolumn">
+		 					    
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=CAT16-102J4LF&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList"><span class="lookaheadHighlight">CAT</span>16-102J4LF</a>
+													
+ 					    </td>
+						<td id="pipeline">|</td>
+ 						<td id="contentwrapper">
+		 					
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=CAT16-102J4LF&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">3&nbsp;products found in&nbsp;Passive Components</a>														
+													
+ 						</td>
+ 					</tr>
+ 						
+					
+					    <tr>
+ 					    <td id="leftcolumn">
+		 					    
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMAJ30CATR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">SMAJ30<span class="lookaheadHighlight">CAT</span>R</a>
+													
+ 					    </td>
+						<td id="pipeline">|</td>
+ 						<td id="contentwrapper">
+		 					
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMAJ30CATR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">4&nbsp;products found in&nbsp;Circuit Protection</a>														
+													
+ 						</td>
+ 					</tr>
+ 						
+					
+					    <tr>
+ 					    <td id="leftcolumn">
+		 					    
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMA6J15CA-TR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">SMA6J15<span class="lookaheadHighlight">C</span><span class="lookaheadHighlight">A</span>-<span class="lookaheadHighlight">T</span>R</a>
+													
+ 					    </td>
+						<td id="pipeline">|</td>
+ 						<td id="contentwrapper">
+		 					
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMA6J15CA-TR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">2&nbsp;products found in&nbsp;Circuit Protection</a>														
+													
+ 						</td>
+ 					</tr>
+ 						
+					
+					    <tr>
+ 					    <td id="leftcolumn">
+		 					    
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMA6J33CATR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">SMA6J33<span class="lookaheadHighlight">CAT</span>R</a>
+													
+ 					    </td>
+						<td id="pipeline">|</td>
+ 						<td id="contentwrapper">
+		 					
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=SMA6J33CATR&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">4&nbsp;products found in&nbsp;Circuit Protection</a>														
+													
+ 						</td>
+ 					</tr>
+ 						
+					
+					    <tr>
+ 					    <td id="leftcolumn">
+		 					    
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=VCAT06AG18120YAT1A&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">V<span class="lookaheadHighlight">CAT</span>06AG18120YAT1A</a>
+													
+ 					    </td>
+						<td id="pipeline">|</td>
+ 						<td id="contentwrapper">
+		 					
+														<a href="http://uk.farnell.com/webapp/wcs/stores/servlet/Search?catalogId=15001&amp;exaMfpn=true&amp;mfpn=VCAT06AG18120YAT1A&amp;categoryId=&amp;langId=&amp;searchRef=SearchLookAhead&amp;storeId=10151&amp;showResults=true" id="searchResultProductList">2&nbsp;products found in&nbsp;Circuit Protection</a>														
+													
+ 						</td>
+ 					</tr>
+ 					
+				</table>
+			</ul>
+			</div>
+		

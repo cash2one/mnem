@@ -10,18 +10,18 @@ from mnem.plugins import google
 
 class GoogleTest(search_tests.SearchTest):
 
-    @search_tests.expectNResults
     def testGoogle(self):
-        return google.GoogleSearch, 'uk', 'cat'
+        self.assertAtLeastNCompls(google.GoogleSearch,
+                                      "cat", 5)
 
-    @search_tests.expectNResults
     def testGFin(self):
-        return google.GoogleFinanceSearch, 'uk', 'dra'
+        self.assertAtLeastNCompls(google.GoogleFinanceSearch,
+                                      "dra", 5)
 
-    @search_tests.expectNResults(10)
     def testGImg(self):
-        return google.GoogleImageSearch, 'uk', 'cat'
+        self.assertAtLeastNCompls(google.GoogleImageSearch,
+                                      "cat", 10)
 
-    @search_tests.expectNResults(5)
     def testGTrends(self):
-        return google.GoogleTrendsSearch, 'uk', 'cat'
+        self.assertAtLeastNCompls(google.GoogleTrendsSearch,
+                                      "cat", 5)

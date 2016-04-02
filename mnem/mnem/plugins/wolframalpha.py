@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from mnem import mnemory
-from urllib.parse import quote, unquote
-import json
+
+from urllib.parse import quote
+from json import loads
 
 
 class WolframAlphaSearch(mnemory.SearchMnemory):
@@ -13,7 +14,7 @@ class WolframAlphaSearch(mnemory.SearchMnemory):
 
     base = "http://wolframalpha.com"
 
-    def __init__(self, locale):
+    def __init__(self, locale=None):
         mnemory.SearchMnemory.__init__(self, None)
 
     def availableCompletions(self):
@@ -22,10 +23,14 @@ class WolframAlphaSearch(mnemory.SearchMnemory):
     def getRequestUrl(self, q):
         return self.base + "/input/?i=" + quote(q)
 
-    def getCompletions(self, completion, q):
+    def defaultCompletionLoader(self, completion):
 
         url = self.base + "/input/autocomplete.jsp?qr=0&i=%s"
-        result = self.load_from_url(url, q).json()
+        return mnemory.UrlCompletionDataLoader(url)
+
+    def getCompletions(self, result):
+
+        result = loads(result)
 
         return [mnemory.CompletionResult(c['input']) for c in result['results']]
 

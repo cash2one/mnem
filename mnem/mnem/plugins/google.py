@@ -3,7 +3,9 @@
 
 from mnem import mnemory
 
-import json
+from mnem.mnemory import UrlCompletionDataLoader as UCL
+from json import loads
+
 import codecs
 
 reader = codecs.getreader("utf-8")
@@ -37,11 +39,13 @@ class GoogleSearch(GoogleMnemory):
     def getRequestUrl(self, q):
         return self.base + "/search?q=%s" % quote(q)
 
-    def getCompletions(self, completion, q):
+    def defaultCompletionLoader(self, completion):
         url = self.base + "/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=%s"
+        return UCL(url)
 
-        data = self.load_from_url(url, q)
-        data = data.json()
+    def getCompletions(self, data):
+
+        data = loads(data)
 
         return [mnemory.CompletionResult(x) for x in data[1]]
 
@@ -61,19 +65,19 @@ class GoogleImageSearch(GoogleMnemory):
     def getRequestUrl(self, q):
         return self.base + "/search?tbm=isch&q=%s" % quote(q)
 
-    def getCompletions(self, completion, q):
+    def defaultCompletionLoader(self, completion):
+        url = self.base + "/complete/search?client=img&hl=%s&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%%s" % self.langForLocale(self.locale)
+        return UCL(url)
+
+    def getCompletions(self, data):
 
         def process(res):
             res = html.unescape(res.replace("<b>", "").replace("</b>", ""))
             return mnemory.CompletionResult(res)
 
-        url = self.base + "/complete/search?client=img&hl=%s&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%%s" % self.langForLocale(self.locale)
-
-        data = self.load_from_url(url, q).text
-
         data = data.split("(", 1)[1][:-1]
 
-        data = json.loads(data)
+        data = loads(data)
 
         return [process(x[0]) for x in data[1]]
 
@@ -93,21 +97,22 @@ class GoogleFinanceSearch(GoogleMnemory):
     def getRequestUrl(self, q):
         return self.base + "?q=%s" % quote(q)
 
-    def getCompletions(self, completion, q):
+    def defaultCompletionLoader(self, completion):
+        url = self.base + "/match?matchtype=matchall&q=%s"
+        return UCL(url)
 
-         url = self.base + "/match?matchtype=matchall&q=%s"
+    def getCompletions(self, data):
 
-         data = self.load_from_url(url, q)
+        data = loads(data)['matches']
 
-         data = data.json()['matches']
+        def parse(x):
+            symbol = x['t']
+            name = x['n']
+            exchange = x['e']
+            return mnemory.CompletionResult(symbol,
+                                            description="%s - %s" % (name, exchange))
 
-         def parse(x):
-             symbol = x['t']
-             name = x['n']
-             exchange = x['e']
-             return mnemory.CompletionResult(symbol, description = "%s - %s" % (name, exchange))
-
-         return [parse(x) for x in data]
+        return [parse(x) for x in data]
 
 class GoogleTrendsSearch(GoogleMnemory):
 
@@ -124,6 +129,10 @@ class GoogleTrendsSearch(GoogleMnemory):
 
     def getRequestUrl(self, q):
         return self.base + "/explore#q=%s" % quote(q)
+
+    def defaultCompletionLoader(self, completion):
+        url = self.base + "/entitiesQuery?tn=10&q=%s"
+        return UCL(url)
 
     def getCompletions(self, completion, q):
 
@@ -178,13 +187,14 @@ class YoutubeSearch(mnemory.SearchMnemory):
     def getRequestUrl(self, q):
         return self.base + "/results?search_query=%s" % quote(q)
 
-    def getCompletions(self, completion, q):
-
+    def defaultCompletionLoader(self, completion):
         url = "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=%s"
+        return UCL(url)
 
-        result = self.load_from_url(url, q).text
-        result = self.stripJsonp(result)
-        result = json.loads(result)
+    def getCompletions(self, data):
+
+        data = self.stripJsonp(data)
+        result = loads(data)
 
         return [mnemory.CompletionResult(c[0]) for c in result[1]]
 

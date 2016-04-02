@@ -3,6 +3,7 @@
 
 from mnem import mnemory
 
+from json import loads
 from urllib.parse import quote
 
 class MediaWikiMnemory(mnemory.SearchMnemory):
@@ -27,12 +28,13 @@ class MediaWikiMnemory(mnemory.SearchMnemory):
     def getRequestUrl(self, q):
         return self.base + "/wiki/" + quote(q.replace(" ", "_"))
 
-    def getCompletions(self, completion, q):
+    def defaultCompletionLoader(self, completion):
         url = self.base + "/w/api.php?action=opensearch&format=json&search=%s"
+        return mnemory.UrlCompletionDataLoader(url)
 
-        print( url )
-        data = self.load_from_url(url, q)
-        data = data.json()
+    def getCompletions(self, data):
+
+        data = loads(data)
 
         return [mnemory.CompletionResult(x) for x in data[1]]
 
