@@ -30,29 +30,30 @@ class MnemoryListAPI(Resource):
 
 class MnemorySearchInfoAPI(Resource):
 
-    def get(self, key, locale = None):
+    def get(self, key, locale=None):
         mnemory = m.mnemories[key](locale)
 
         jc = {
             'key': key,
-            'completions': mnemory.availableCompletions()
+            'completions': mnemory.availableCompletions(),
+            'searches': mnemory.availableRequests()  # TODO need to add more info here
         }
 
         return jc
 
 class MnemorySearchQueryAPI(Resource):
 
-    def get(self, key, query, locale = None):
+    def get(self, key, query, locale=None):
         mnemory = m.mnemories[key](locale)
 
-        res = mnemory.getSearchForQuery(query);
+        type = mnemory.getDefaultRequestType()
 
-        jc = {
-            'url': res.uri,
-            'keyword': res.keyword
-        }
+        if not type:
+            raise ValueError  # TODO need a way to bail here
 
-        return jc
+        res = mnemory.getRequestData(type, {'query': query})
+
+        return res.getData()
 
 ERRORS = {
     'internal': 1,

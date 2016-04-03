@@ -24,11 +24,25 @@ class UrlResult(SearchResult):
 
 class CompletionResult(SearchResult):
 
-    def __init__(self, keyword, category="", description="", url=""):
+    def __init__(self, keyword, category="", description="", url="",
+                 req_type=None):
+        '''
+        @param keyword: the keyword for this completion (eg 'catalyst' for 'cat')
+        @param category: the (human-readable) category for this completion
+        (for example "Products" or "Categories") if provided
+        @param description: extended (human-readable) description of the
+        completion if provided
+        @param url: url of that completion's request, if provided (could
+        also re-call the engine to get the same or different request URL)
+        @param req_type: the type of engine request that this completion
+        relates to. Default is None, which means the default search for the
+        engine, if it exists.
+        '''
         self.keyword = keyword
         self.description = description
         self.category = category
         self.url = url
+        self.req_type = req_type
 
     def __str__(self):
         s = u"%s" % (self.keyword)
@@ -123,10 +137,6 @@ class SearchMnemory(Mnemory):
     def stripJsonp(jsonp):
         return SearchMnemory.stringLongestBetween(jsonp, "(", ")", False)
 
-    def getSearchForQuery(self, query):
-        url = self.getRequestUrl(query)
-        return UrlResult(query, url)
-
     def load_from_url(self, url_pattern, query):
 
         # dprecated
@@ -182,6 +192,9 @@ class SearchMnemory(Mnemory):
         Returns a list of requests
         Default is to provide a single default request type (since it's
         normal for a search engine to provide searches)
+        
+        If you override, the first item in this list is the default one for 
+        this engine
         '''
         return ['default']
 
@@ -203,18 +216,23 @@ class SearchMnemory(Mnemory):
             # hmm, should this be a separate error type?
             raise completion.CompletionNotAvailableError("$default")
 
-    def getRequestLoader(self, req_type, options):
+    def getRequestData(self, req_type, options):
         '''
         Gets the request loader for this engine of the given type, with
-        the given options
+        the given options. Normally options is a dictionary, probably with
+        a 'query' value at least
         '''
         raise NotImplementedError
 
-    def getRequestUrl(self, query):
+    def getDefaultRequestType(self):
         '''
-        Gets the URL for a search query
+        Returns the default request type for this engine, or None if
+        no searches available
         '''
-        raise NotImplementedError
+        try:
+            return self.availableRequests()[0]
+        except IndexError:
+            return None
 
     def getCompletions(self, loader, completion, query):
         """Gets the results for a a given completion on this engine

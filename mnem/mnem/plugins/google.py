@@ -3,7 +3,7 @@
 
 from mnem import mnemory
 
-from mnem.mnemory import UrlCompletionDataLoader as UCL
+from mnem.completion import UrlCompletionDataLoader as UCL
 from json import loads
 
 import codecs

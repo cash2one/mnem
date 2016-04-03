@@ -16,8 +16,17 @@ class RequestData(object):
         of properties for a given chemical)
     '''
 
-    def __init__(self):
-        pass
+    def __init__(self, search_term):
+        self.search_term = search_term
+
+    def getData(self):
+        '''
+        Gets an object representing the data
+        
+        Used to serialise the data for handover to clients
+        '''
+        raise NotImplementedError
+
 
 class PlainUrlReqData(RequestData):
     '''
@@ -28,9 +37,19 @@ class PlainUrlReqData(RequestData):
     Mnem just interpolates a string to a URL and the user goes to that page
     '''
 
-    def __init__(self, url, title=None):
+    def __init__(self, search_term, url, title=None):
+        super(PlainUrlReqData, self).__init__(search_term)
+
         self.url = url
         self.title = title
+
+    def getData(self):
+
+        return {
+            'term': self.search_term,
+            'uri': self.url,
+            'title': self.title
+        }
 
 class CompletionReqData(RequestData):
     '''

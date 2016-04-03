@@ -4,7 +4,7 @@ Created on 3 Apr 2016
 @author: John Beard
 '''
 
-from mnem import mnemory
+from mnem import mnemory, request_data
 
 from lxml.html import fromstring
 from urllib.parse import quote
@@ -14,6 +14,10 @@ class FarnellSearch(mnemory.SearchMnemory):
 
     key = "com.farnell.search"
     defaultAlias = "farnell"
+
+    R_PRODUCT = 'product'
+    R_MANUFACTURER = 'manufacturer'
+    R_CATEGORY = 'category'
 
     def __init__(self, locale):
         mnemory.SearchMnemory.__init__(self, locale)
@@ -33,23 +37,32 @@ class FarnellSearch(mnemory.SearchMnemory):
 
     def availableRequests(self):
         return [
-            'product',
-            'manufacturer',
-            'category'
+            self.R_PRODUCT,
+            self.R_CATEGORY,
+            self.R_MANUFACTURER
         ]
 
     def getRequestUrl(self, query, request):
 
-        if request == 'manufacturer':
+        raise DeprecationWarning
+
+    def getRequestData(self, req_type, options):
+
+        try:
+            query = options['query']
+        except KeyError:
+            # nneds a real exception
+            raise ValueError("Expected a 'query' option: got %s" % options)
+
+        if req_type in [self.R_CATEGORY, self.R_MANUFACTURER]:
             url = self.getBaseUrl() + "/" + query
-        elif request == 'category':
-            url = self.getBaseUrl() + "/" + query
-        elif request == 'product':
+        elif req_type == self.R_PRODUCT:
             url = self.getBaseUrl() + "/Search?st=%s" % quote(query)
         else:
-            raise ValueError
+            # make this a specific error
+            raise ValueError("Unknown request type: %s" % req_type)
 
-        return url
+        return request_data.PlainUrlReqData(query, url)
 
     def defaultCompletionLoader(self, completion):
         api = self.getBaseUrl() + "/webapp/wcs/stores/servlet/AjaxSearchLookAhead?searchTerm=%s"
@@ -73,6 +86,16 @@ class FarnellSearch(mnemory.SearchMnemory):
 
             if listE.tag == 'ul':
 
+                if "Categor" in title:
+                    req_type = self.R_CATEGORY
+                elif "Manufactur" in title:
+                    req_type = self.R_MANUFACTURER
+                else:
+                    # what is this heading? something new and exciting, no
+                    # doubt
+                    # some way to flag possible new things needed?
+                    continue
+
                 for a in listE.findall(".//a"):
 
                     url = a.get('href')
@@ -83,7 +106,10 @@ class FarnellSearch(mnemory.SearchMnemory):
                     except ValueError:
                         desc = None
 
-                    c.append(mnemory.CompletionResult(name, url=url, category=title, description=desc))
+                    c.append(mnemory.CompletionResult(name, url=url,
+                                                      category=title,
+                                                      description=desc,
+                                                      req_type=req_type))
 
             else:  # this is a product table
                 for tr in listE.findall(".//tr"):
@@ -94,6 +120,18 @@ class FarnellSearch(mnemory.SearchMnemory):
 
                     desc = tr.find("td[@id='contentwrapper']/a").xpath("string()").strip()
 
-                    c.append(mnemory.CompletionResult(name, url=url, category=title, description=desc))
+                    c.append(mnemory.CompletionResult(name, url=url, category=title,
+                                                       description=desc,
+                                                       req_type=self.R_PRODUCT))
 
         return c
+
+class FarnellPlugin(mnemory.MnemPlugin):
+
+    def get_name(self):
+        return "Farnell/Element14/Newark Searches"
+
+    def report_mnemories(self):
+        return [
+            FarnellSearch
+        ]
