@@ -29,7 +29,7 @@ class GoogleSearch(GoogleMnemory):
     key = "com.google.websearch"
     defaultAlias = "google"
 
-    def __init__(self, locale):
+    def __init__(self, locale=None):
         self.base = "https://www.google." + self.tldForLocale(locale)
 
         mnemory.SearchMnemory.__init__(self, locale)
@@ -56,7 +56,7 @@ class GoogleImageSearch(GoogleMnemory):
     key = "com.google.image"
     defaultAlias = "google-image"
 
-    def __init__(self, locale):
+    def __init__(self, locale=None):
         self.base = "https://www.google." + self.tldForLocale(locale)
 
         mnemory.SearchMnemory.__init__(self, locale)
@@ -89,7 +89,7 @@ class GoogleFinanceSearch(GoogleMnemory):
     key = "com.google.finance"
     defaultAlias = "google-finance"
 
-    def __init__(self, locale):
+    def __init__(self, locale=None):
         self.base = "https://www.google." + self.tldForLocale(locale) + "/finance"
 
         mnemory.SearchMnemory.__init__(self, locale)
@@ -123,7 +123,7 @@ class GoogleTrendsSearch(GoogleMnemory):
     key = "com.google.trends"
     defaultAlias = "google-trends"
 
-    def __init__(self, locale):
+    def __init__(self, locale=None):
         self.base = "https://www.google." + self.tldForLocale(locale) + "/trends"
 
         mnemory.SearchMnemory.__init__(self, locale)
@@ -158,7 +158,7 @@ class GoogleScholarSearch(GoogleMnemory):
     key = "com.google.scholar"
     defaultAlias = "google-scholar"
 
-    def __init__(self, locale):
+    def __init__(self, locale=None):
         self.base = "https://www.scholar.google." + self.tldForLocale(locale)
 
         mnemory.SearchMnemory.__init__(self, locale)
@@ -177,7 +177,7 @@ class YoutubeSearch(mnemory.SearchMnemory):
     key = "com.youtube.search"
     defaultAlias = "youtube"
 
-    def __init__(self, locale):
+    def __init__(self, locale=None):
         mnemory.SearchMnemory.__init__(self, locale)
 
         self.base = "http://youtube.com"

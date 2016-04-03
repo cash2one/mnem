@@ -151,10 +151,6 @@ class SearchMnemory(Mnemory):
 
         compl = self.getCompletions(data)
 
-        for c in compl:
-            if not c.url:
-                c.url = self.getRequestUrl(c.keyword)
-
         return compl
 
     def defaultCompletionLoader(self, completion):
