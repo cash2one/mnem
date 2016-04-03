@@ -15,20 +15,26 @@ class OctopartSearch(mnemory.SearchMnemory):
     def __init__(self, locale=None):
         mnemory.SearchMnemory.__init__(self, None)
 
-    def getRequestData(self, rtype, opts):
-        url = self.base + "/search?q="
-        return mnemory.getSimpleUrlDataQuoted(opts, url)
-
     def availableCompletions(self):
-        return ["default"]
+        return [self.R_DEF_COMPLETE]
 
-    def defaultCompletionLoader(self, ctype):
-        apikey = "6911d9b3"  # FIXME this presumably rotates...
-        url = "https://octopart.com/api/v3/suggest?apikey=" + apikey + "&q=%s&grouped=true"
+    def _getSearchLoader(self, req_type):
 
-        return completion.UrlCompletionDataLoader(url)
+        if req_type == self.R_DEF_COMPLETE:
+            apikey = "6911d9b3"  # FIXME this presumably rotates...
+            url = "https://octopart.com/api/v3/suggest?apikey=" + apikey + "&q=%s&grouped=true"
 
-    def getCompletions(self, result):
+            return completion.UrlCompletionDataLoader(url)
+
+    def _getRequestData(self, rtype, opts, data):
+
+        if rtype == self.R_DEF_SEARCH:
+            url = self.base + "/search?q=%s"
+            return mnemory.getSimpleUrlDataQuoted(opts, url)
+        else:
+            return self._getCompletions(data)
+
+    def _getCompletions(self, result):
 
         def parse(typ, cs):
             res = []
@@ -53,7 +59,7 @@ class OctopartSearch(mnemory.SearchMnemory):
         for group in result['group_order']:
             c.extend(parse(group, result['results'][group]))
 
-        return c
+        return mnemory.request_data.CompletionReqData(c)
 
 class MouserSearch(mnemory.SearchMnemory):
 
@@ -64,20 +70,26 @@ class MouserSearch(mnemory.SearchMnemory):
         mnemory.SearchMnemory.__init__(self, None)
 
     def availableCompletions(self):
-        return ["default"]
+        return [self.R_DEF_COMPLETE]
 
     def getBaseUrl(self):
         return "http://" + self.domainForLocale(self.locale) + ".mouser.com"
 
-    def getRequestData(self, rtype, opts):
-        url = self.getBaseUrl() + "/Search/Refine.aspx?Keyword=%s"
-        return mnemory.getSimpleUrlDataQuoted(opts, url)
+    def _getSearchLoader(self, req_type):
 
-    def defaultCompletionLoader(self, completion):
-        api = self.getBaseUrl() + "/ajax/autosuggestion.ashx?q=%s"
-        return completion.UrlCompletionDataLoader(api)
+        if req_type == self.R_DEF_COMPLETE:
+            api = self.getBaseUrl() + "/ajax/autosuggestion.ashx?q=%s"
+            return completion.UrlCompletionDataLoader(api)
 
-    def getCompletions(self, data):
+    def _getRequestData(self, rtype, opts, data):
+
+        if rtype == self.R_DEF_SEARCH:
+            url = self.getBaseUrl() + "/Search/Refine.aspx?Keyword=%s"
+            return mnemory.getSimpleUrlDataQuoted(opts, url)
+        else:
+            return self._getCompletions(data)
+
+    def _getCompletions(self, data):
 
         def parse(entry):
 
@@ -89,7 +101,8 @@ class MouserSearch(mnemory.SearchMnemory):
 
         data = loads(data)
 
-        return [parse(e) for e in data]
+        cs = [parse(e) for e in data]
+        return mnemory.request_data.CompletionReqData(cs)
 
 
 class ElectronicsSupply(mnemory.MnemPlugin):

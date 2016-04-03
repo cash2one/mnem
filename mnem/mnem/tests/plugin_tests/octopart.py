@@ -15,4 +15,4 @@ class OctopartTest(search_tests.SearchTest):
         cl = self.getFileTestDataLoader('octopart_compl.dat')
         e = OctopartSearch()
 
-        self.assertAtLeastNCompls(e, "cat", 10, compl_fetcher=cl)
+        self.assertAtLeastNCompls(e, "cat", 10, search_loader=cl)

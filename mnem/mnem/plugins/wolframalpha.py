@@ -3,7 +3,6 @@
 
 from mnem import mnemory
 
-from urllib.parse import quote
 from json import loads
 
 
@@ -18,22 +17,27 @@ class WolframAlphaSearch(mnemory.SearchMnemory):
         mnemory.SearchMnemory.__init__(self, None)
 
     def availableCompletions(self):
-        return ["default"]
+        return [self.R_DEF_COMPLETE]
 
-    def getRequestData(self, rtype, opts):
-        url = self.base + "/input/?i=%s"
-        return mnemory.getSimpleUrlDataQuoted(opts, url)
+    def _getSearchLoader(self, req_type):
 
-    def defaultCompletionLoader(self, completion):
+        if req_type == self.R_DEF_COMPLETE:
+            url = self.base + "/input/autocomplete.jsp?qr=0&i=%s"
+            return mnemory.completion.UrlCompletionDataLoader(url)
 
-        url = self.base + "/input/autocomplete.jsp?qr=0&i=%s"
-        return mnemory.completion.UrlCompletionDataLoader(url)
+    def _getRequestData(self, rtype, opts, data):
+        if rtype == self.R_DEF_SEARCH:
+            url = self.base + "/input/?i=%s"
+            return mnemory.getSimpleUrlDataQuoted(opts, url)
+        else:
+            return self._getCompletions(data)
 
-    def getCompletions(self, result):
+    def _getCompletions(self, result):
 
         result = loads(result)
 
-        return [mnemory.CompletionResult(c['input']) for c in result['results']]
+        cs = [mnemory.CompletionResult(c['input']) for c in result['results']]
+        return mnemory.request_data.CompletionReqData(cs)
 
 class WolframAlpha(mnemory.MnemPlugin):
 

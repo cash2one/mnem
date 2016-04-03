@@ -9,6 +9,18 @@ from mnem import mnemory, request_data
 from lxml.html import fromstring
 from urllib.parse import quote
 
+class UrlLoaderWithMinLength(mnemory.completion.UrlCompletionDataLoader):
+
+    def __init__(self, minlen, *args, **kwargs):
+        self.minlen = minlen
+        super(UrlLoaderWithMinLength, self).__init__(*args, **kwargs)
+
+    def load(self, query):
+
+        if len(query) < self.minlen:
+            raise mnemory.RequestLoaderNullRequest(query)
+
+        return super(UrlLoaderWithMinLength, self).load(query)
 
 class FarnellSearch(mnemory.SearchMnemory):
 
@@ -26,14 +38,7 @@ class FarnellSearch(mnemory.SearchMnemory):
         return "us"
 
     def availableCompletions(self):
-        return ["default"]
-
-    def getBaseUrl(self):
-
-        if self.locale == "us":
-            return "https://www.newark.com"
-
-        return "http://" + self.domainForLocale(self.locale) + ".farnell.com"
+        return [self.R_DEF_COMPLETE]
 
     def availableRequests(self):
         return [
@@ -42,7 +47,28 @@ class FarnellSearch(mnemory.SearchMnemory):
             self.R_MANUFACTURER
         ]
 
-    def getRequestData(self, req_type, options):
+    def getBaseUrl(self):
+
+        if self.locale == "us":
+            return "https://www.newark.com"
+
+        return "http://" + self.domainForLocale(self.locale) + ".farnell.com"
+
+    def _getSearchLoader(self, req_type):
+
+        if req_type == self.R_DEF_COMPLETE:
+            api = self.getBaseUrl() + "/webapp/wcs/stores/servlet/AjaxSearchLookAhead?searchTerm=%s"
+            return UrlLoaderWithMinLength(3, api)
+
+    def _getRequestData(self, req_type, options, data):
+
+        if req_type == self.R_DEF_COMPLETE:
+            cs = self._getCompletions(data)
+            return mnemory.request_data.CompletionReqData(cs)
+        else:
+            return self._urlData(req_type, options)
+
+    def _urlData(self, req_type, options):
 
         try:
             query = options['query']
@@ -60,21 +86,13 @@ class FarnellSearch(mnemory.SearchMnemory):
 
         return request_data.PlainUrlReqData(query, url)
 
-    def defaultCompletionLoader(self, completion):
-        api = self.getBaseUrl() + "/webapp/wcs/stores/servlet/AjaxSearchLookAhead?searchTerm=%s"
-        return mnemory.completion.UrlCompletionDataLoader(api)
+    def _getCompletions(self, data):
 
-    def providesCompletionsForQuery(self, query, completion):
-        # farnell only resposnds to queries of 3 or more chars
-        return len(query) > 2
-
-    def getCompletions(self, data):
+        cs = []
 
         root = fromstring(data)
 
         headings = root.findall("div")[1:-1]
-
-        c = []
 
         for h in headings:
             title = h.find("p").text
@@ -102,7 +120,7 @@ class FarnellSearch(mnemory.SearchMnemory):
                     except ValueError:
                         desc = None
 
-                    c.append(mnemory.CompletionResult(name, url=url,
+                    cs.append(mnemory.CompletionResult(name, url=url,
                                                       category=title,
                                                       description=desc,
                                                       req_type=req_type))
@@ -116,11 +134,12 @@ class FarnellSearch(mnemory.SearchMnemory):
 
                     desc = tr.find("td[@id='contentwrapper']/a").xpath("string()").strip()
 
-                    c.append(mnemory.CompletionResult(name, url=url, category=title,
-                                                       description=desc,
-                                                       req_type=self.R_PRODUCT))
+                    cs.append(mnemory.CompletionResult(name, url=url,
+                                                           category=title,
+                                                           description=desc,
+                                                           req_type=self.R_PRODUCT))
 
-        return c
+        return cs
 
 class FarnellPlugin(mnemory.MnemPlugin):
 

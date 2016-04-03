@@ -15,4 +15,4 @@ class EbayTest(search_tests.SearchTest):
         cl = self.getFileTestDataLoader('ebay_compl.dat')
         e = ebay.EbaySearch('uk')
 
-        self.assertAtLeastNCompls(e, "cat", 10, compl_fetcher=cl)
+        self.assertAtLeastNCompls(e, "cat", 10, search_loader=cl)

@@ -19,24 +19,31 @@ class MediaWikiMnemory(mnemory.SearchMnemory):
         return "en"
 
     def availableCompletions(self):
-        return ["default"]
+        return [self.R_DEF_COMPLETE]
 
     def getBaseUrl(self):
         return self.base
 
-    def getRequestData(self, rtype, opts):
-        return mnemory.getSimpleUrlData(self.base + "/wiki/%s",
-                                        opts['query'].replace(" ", "_"))
+    def _getRequestData(self, rtype, opts, data):
 
-    def defaultCompletionLoader(self, completion):
-        url = self.base + "/w/api.php?action=opensearch&format=json&search=%s"
-        return mnemory.completion.UrlCompletionDataLoader(url)
+        if rtype == self.R_DEF_SEARCH:
+            return mnemory.getSimpleUrlData(self.base + "/wiki/%s",
+                                            opts['query'].replace(" ", "_"))
+        else:
+            return self._getCompletions(data)
 
-    def getCompletions(self, data):
+    def _getSearchLoader(self, req_type):
+        if req_type == self.R_DEF_COMPLETE:
+            url = self.base + "/w/api.php?action=opensearch&format=json&search=%s"
+            return mnemory.completion.UrlCompletionDataLoader(url)
+
+    def _getCompletions(self, data):
 
         data = loads(data)
 
-        return [mnemory.CompletionResult(x) for x in data[1]]
+        cs = [mnemory.CompletionResult(x) for x in data[1]]
+
+        return mnemory.request_data.CompletionReqData(cs)
 
 class WikipediaSearch(MediaWikiMnemory):
 

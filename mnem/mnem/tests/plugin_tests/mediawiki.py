@@ -15,7 +15,7 @@ class MediawikiTest(search_tests.SearchTest):
         cl = self.getFileTestDataLoader('wikipedia_en_compl.dat')
         e = mediawiki.WikipediaSearch('en')
 
-        self.assertAtLeastNCompls(e, "cat", 10, compl_fetcher=cl)
+        self.assertAtLeastNCompls(e, "cat", 10, search_loader=cl)
 
     def testEnwikiCompOnline(self):
 

@@ -61,5 +61,32 @@ class CompletionReqData(RequestData):
     Request data representing a request that results in some list of 
     completions
     '''
-    def __init__(self):
-        pass
+    def __init__(self, compls=[]):
+        self.compls = compls
+
+    def append(self, c):
+        self.compls.append(c)
+
+    def getData(self):
+
+        def formatCompl(c):
+
+            # all completions have a keyword
+            d = {
+                'keyword': c.keyword
+            };
+
+            if c.category:
+                d['category'] = c.category
+
+            if c.url:
+                d['url'] = c.url
+
+            if c.description:
+                d['desc'] = c.description
+
+            return d
+
+        return {
+            'completions': [formatCompl(c) for c in self.compls]
+        }

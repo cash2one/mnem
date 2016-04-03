@@ -15,4 +15,4 @@ class FarnellTest(search_tests.SearchTest):
         cl = self.getFileTestDataLoader('mouser_uk_compl.dat')
         e = MouserSearch('uk')
 
-        self.assertAtLeastNCompls(e, "cat", 4, compl_fetcher=cl)
+        self.assertAtLeastNCompls(e, "cat", 4, search_loader=cl)

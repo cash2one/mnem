@@ -15,4 +15,4 @@ class WolframAlphaTest(search_tests.SearchTest):
         cl = self.getFileTestDataLoader('wolframalpha_compl.dat')
         e = wolframalpha.WolframAlphaSearch()
 
-        self.assertAtLeastNCompls(e, "cat", 10, compl_fetcher=cl)
+        self.assertAtLeastNCompls(e, "cat", 10, search_loader=cl)

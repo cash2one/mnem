@@ -15,4 +15,4 @@ class YoudaoTest(search_tests.SearchTest):
         cl = self.getFileTestDataLoader('youdao_compl.dat')
         e = youdao.YouDaoDictSearch()
 
-        self.assertAtLeastNCompls(e, "cat", 8, compl_fetcher=cl)
+        self.assertAtLeastNCompls(e, "cat", 8, search_loader=cl)

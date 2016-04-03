@@ -19,18 +19,22 @@ class YouDaoDictSearch(mnemory.SearchMnemory):
         return self.base
 
     def availableCompletions(self):
-        return ["default"]
+        return [self.R_DEF_COMPLETE]
 
-    def getRequestData(self, rtype, opts):
-        url = self.base + '/search?q=%s&keyfrom=dict.index'
-        return mnemory.getSimpleUrlDataQuoted(opts, url)
+    def _getSearchLoader(self, req_type):
 
-    def defaultCompletionLoader(self, completion):
+        if req_type == self.R_DEF_COMPLETE:
+            url = "http://dsuggest.ydstatic.com/suggest/suggest.s?query=%s"
+            return mnemory.completion.UrlCompletionDataLoader(url)
 
-        url = "http://dsuggest.ydstatic.com/suggest/suggest.s?query=%s"
-        return mnemory.completion.UrlCompletionDataLoader(url)
+    def getRequestData(self, rtype, opts, data):
+        if rtype == self.R_DEF_SEARCH:
+            url = self.base + '/search?q=%s&keyfrom=dict.index'
+            return mnemory.getSimpleUrlDataQuoted(opts, url)
+        else:
+            return self._getCompletions(data)
 
-    def getCompletions(self, data):
+    def _getCompletions(self, data):
 
         cs = []
 
@@ -39,7 +43,9 @@ class YouDaoDictSearch(mnemory.SearchMnemory):
             quoted = r.split("%22", 1)[0]
             cs.append(unquote(quoted))
 
-        return [mnemory.CompletionResult(c) for c in cs]
+        cs = [mnemory.CompletionResult(c) for c in cs]
+
+        return mnemory.request_data.CompletionReqData(cs)
 
 class YouDao(mnemory.MnemPlugin):
 

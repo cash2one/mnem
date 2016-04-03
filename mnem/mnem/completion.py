@@ -58,7 +58,7 @@ class CompletionParseError(CompletionError):
 
 class CompletionDataLoader(object):
 
-    def _load(self):
+    def load(self):
         '''
         Perform the completion load - inheritors have to provide this
         '''
@@ -72,7 +72,7 @@ class UrlCompletionDataLoader(CompletionDataLoader):
     def __init__(self, pattern):
         self.pattern = pattern
 
-    def _load(self, query):
+    def load(self, query):
         '''
         Interpolate the query into the URL pattern and fetch
         '''
@@ -94,7 +94,7 @@ class FileCompletionLoader(CompletionDataLoader):
     def __init__(self, filename):
         self.fn = filename
 
-    def _load(self, filename):
+    def load(self, filename):
 
         f = open(self.fn, 'r')
         data = f.read()

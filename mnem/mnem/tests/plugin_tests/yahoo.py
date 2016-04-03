@@ -15,7 +15,7 @@ class YahooTest(search_tests.SearchTest):
         cl = self.getFileTestDataLoader('yahoo_compl.dat')
         e = yahoo.YahooWebSearch(None)
 
-        self.assertAtLeastNCompls(e, "cat", 10, compl_fetcher=cl)
+        self.assertAtLeastNCompls(e, "cat", 10, search_loader=cl)
 
     def testYahooCompOnline(self):
 

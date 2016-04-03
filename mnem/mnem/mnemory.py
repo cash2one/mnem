@@ -40,6 +40,17 @@ class CompletionResult(SearchResult):
             s += " (%s)" % self.category
         return s
 
+class RequestLoaderNullRequest(Exception):
+    '''
+    Exception raised when a request loader reports that it can't proceed with
+    the request due to some problem it detects with the query.
+    '''
+
+    def __init__(self, failing_query):
+        self.failing_query = failing_query
+
+    def __str__(self):
+        return self.failing_query
 
 class Mnemory:
 
@@ -50,29 +61,23 @@ class Mnemory:
 
 class SearchMnemory(Mnemory):
 
+    R_DEF_COMPLETE = 'complete'  # useful as the default/only completion search type if an engine has one
+    R_DEF_SEARCH = 'search'  # useful if the search as only one or a default search (as opposed to completion)
+
     def __init__(self, locale=None):
 
         # some engines have a default locale (or don't have any locale!)
         if not locale:
             locale = self.defaultLocale()
 
-        # default completion function is none, wich will do the
-        # engine's default completion action (eg load from url)
-        self.compl_loader = None
-
         Mnemory.__init__(self, locale)
 
-    # None means there is no preferred locale (or the mnemory doesn't
-    # have a locale
     def defaultLocale(self):
+        '''
+        None means there is no preferred locale (or the mnemory doesn't
+        have a locale
+        '''
         return None
-
-    def setCompletionLoader(self, new_compl_loader):
-        """
-        Sets an alternative completion loader. Can be used for 
-        testing, or subbing out with another engine's completion function.
-        """
-        self.compl_loader = new_compl_loader
 
     @staticmethod
     def tldForLocale(locale):
@@ -126,41 +131,6 @@ class SearchMnemory(Mnemory):
     def stripJsonp(jsonp):
         return SearchMnemory.stringLongestBetween(jsonp, "(", ")", False)
 
-    def submitForSuggestions(self, completion, query):
-
-        if not completion:
-            completion = self.getDefaultCompletion()
-
-        if (not self.providesCompletions() or
-                completion not in self.availableCompletions()):
-            raise completion.CompletionNotAvailableError(completion)
-
-        # occasionally, completions for certain queries might be impossible
-        # and we might be abl to catch them early rather than waiting for a
-        # query to fail
-        if not self.providesCompletionsForQuery(query, completion):
-            return []
-
-        # get the loader to use (default unless overriden)
-        if self.compl_loader:
-            loader = self.compl_loader
-        else:
-            loader = self.defaultCompletionLoader(completion)
-
-        data = loader._load(query)
-
-        compl = self.getCompletions(data)
-
-        return compl
-
-    def defaultCompletionLoader(self, completion):
-        # define this in the inheritor
-        raise NotImplementedError
-
-    def providesCompletionsForQuery(self, query, completion):
-        # default case is always make the call for completions
-        return True
-
     def availableCompletions(self):
         """Return a list of available completion keys.
         """
@@ -176,10 +146,7 @@ class SearchMnemory(Mnemory):
         If you override, the first item in this list is the default one for 
         this engine
         '''
-        return ['default']
-
-    def providesCompletions(self):
-        return len(self.availableCompletions())
+        return [self.R_DEF_SEARCH]
 
     def getDefaultCompletion(self):
         """Returns the fairst available completion available
@@ -196,13 +163,26 @@ class SearchMnemory(Mnemory):
             # hmm, should this be a separate error type?
             raise completion.CompletionNotAvailableError("$default")
 
-    def getRequestData(self, req_type, options):
+    def getRequestData(self, req_type, options, search_loader=None):
         '''
-        Gets the request loader for this engine of the given type, with
+        Gets the request data for this engine of the given type, with
         the given options. Normally options is a dictionary, probably with
         a 'query' value at least
         '''
-        raise NotImplementedError
+        if not search_loader:
+            search_loader = self._getSearchLoader(req_type)
+
+        # load if needed TODO provide a null loader?
+        if search_loader:
+
+            try:
+                data = search_loader.load(options['query'])
+            except RequestLoaderNullRequest:
+                return None
+        else:
+            data = None
+
+        return self._getRequestData(req_type, options, data)
 
     def getDefaultRequestType(self):
         '''
@@ -212,14 +192,18 @@ class SearchMnemory(Mnemory):
         try:
             return self.availableRequests()[0]
         except IndexError:
-            return None
+            pass
 
-    def getCompletions(self, loader, completion, query):
-        """Gets the results for a a given completion on this engine
-        """
-        # shouldn't get here if the calling code if checking
-        # for validity first!
-        raise NotImplementedError
+        return None
+
+    def _getSearchLoader(self, req_type):
+        '''
+        Gets the default loader for the given search type
+        
+        Returns none if the request doesn't need to load data (eg a simple
+        string interpolator) - this is default
+        '''
+        return None
 
 from mnem import request_data
 from urllib.parse import quote

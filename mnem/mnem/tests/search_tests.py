@@ -3,6 +3,7 @@ import unittest
 from mnem.completion import FileCompletionLoader
 
 import os
+from mnem import mnemory
 
 DEFAULT_MIN_RESULTS = 5;
 
@@ -43,26 +44,32 @@ class SearchTest(unittest.TestCase):
 
         return FileCompletionLoader(filename)
 
-    def getCompls(self, engine, query, completion=None, compl_fetcher=None):
+    def getCompls(self, engine, query, completion_req=None,
+                  search_loader=None):
+        '''
+        Test helper to get the completion array from a completion search
+        '''
 
-        if compl_fetcher:
-            engine.setCompletionLoader(compl_fetcher)
+        if not completion_req:
+            completion_req = engine.getDefaultCompletion()
 
-        comps = engine.availableCompletions()
-        if comps:
-            c = engine.submitForSuggestions(comps[0], query)
-        else:
-            c = None
+        comps = engine.getRequestData(completion_req, {'query': query}, search_loader=search_loader)
 
-        return c
+        try:
+            return comps.compls
+        except AttributeError:
+            return []
 
-    def assertAtLeastNCompls(self, engine, query, num,
-                                 completion=None, compl_fetcher=None):
+    def assertAtLeastNCompls(self, engine, query, num, completion_req=None,
+                             search_loader=None):
         """
         Asserts that the given engine and parameters returns at least this
         many results
+        
+        Useful for a quick test, but better if you can check that the results
+        are also correct
         """
-        c = self.getCompls(engine, query, completion, compl_fetcher)
+        c = self.getCompls(engine, query, completion_req, search_loader)
 
         self.assertTrue(c is not None)
         self.assertGreaterEqual(len(c), num)

@@ -15,7 +15,7 @@ class FarnellTest(search_tests.SearchTest):
         cl = self.getFileTestDataLoader('farnell_uk_compl.dat')
         e = FarnellSearch('uk')
 
-        cs = self.getCompls(e, "scr", compl_fetcher=cl)
+        cs = self.getCompls(e, "scr", search_loader=cl)
 
         self.assertEqual(12, len(cs))
 

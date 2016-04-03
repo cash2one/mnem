@@ -20,24 +20,32 @@ class AmazonSearch(mnemory.SearchMnemory):
         return "uk"
 
     def availableCompletions(self):
-        return ["default"]
+        return [self.R_DEF_COMPLETE]
 
-    def getRequestData(self, rtype, opts):
-        url = "http://" + self.base + "/s/?field-keywords=%s"
-        return mnemory.getSimpleUrlDataQuoted(opts, url)
+    def _getSearchLoader(self, req_type):
 
-    def defaultCompletionLoader(self, completion):
-        mkts = {
-            'uk' : '3'
-        }
+        if req_type == self.R_DEF_COMPLETE:
+            mkts = {
+                'uk' : '3'
+            }
 
-        mkt = mkts[self.locale] if self.locale in mkts else '1'
+            mkt = mkts[self.locale] if self.locale in mkts else '1'
 
-        url = "https://completion." + self.base + "/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=" + mkt + "&q=%s"
+            url = "https://completion." + self.base + "/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=" + mkt + "&q=%s"
 
-        return mnemory.completion.UrlCompletionDataLoader(url)
+            return mnemory.completion.UrlCompletionDataLoader(url)
 
-    def getCompletions(self, data):
+        return None
+
+    def _getRequestData(self, rtype, opts, data):
+
+        if rtype == self.R_DEF_SEARCH:
+            url = "http://" + self.base + "/s/?field-keywords=%s"
+            return mnemory.getSimpleUrlDataQuoted(opts, url)
+        else:
+            return self._getCompletions(data)
+
+    def _getCompletions(self, data):
         data = loads(data)
 
         # the basic completions - not the "node" results
@@ -45,7 +53,9 @@ class AmazonSearch(mnemory.SearchMnemory):
 
         compls = [mnemory.CompletionResult(x) for x in simple_compls]
 
-        return compls
+        cs = mnemory.request_data.CompletionReqData(compls)
+
+        return cs
 
 class Amazon(mnemory.MnemPlugin):
 

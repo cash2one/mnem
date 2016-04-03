@@ -12,7 +12,7 @@ class YahooSearch(mnemory.SearchMnemory):
         self.base = "https://yahoo.com"
 
     def availableCompletions(self):
-        return ["default"]
+        return [self.R_DEF_COMPLETE]
 
     def getBaseUrl(self):
         return self.base
@@ -28,20 +28,26 @@ class YahooWebSearch(YahooSearch):
     def __init__(self, locale):
         YahooSearch.__init__(self)
 
-    def getRequestData(self, rtype, opts):
-        url = self.base + "/search?p=%s"
-        return mnemory.getSimpleUrlDataQuoted(opts, url)
+    def _getSearchLoader(self, req_type):
 
-    def defaultCompletionLoader(self, completion):
-        return mnemory.completion.UrlCompletionDataLoader(self._completionPat)
+        if req_type == self.R_DEF_COMPLETE:
+            return mnemory.completion.UrlCompletionDataLoader(self._completionPat)
 
-    def getCompletions(self, data):
+    def getRequestData(self, rtype, opts, data):
+        if rtype == self.R_DEF_SEARCH:
+            url = self.base + "/search?p=%s"
+            return mnemory.getSimpleUrlDataQuoted(opts, url)
+        else:
+            return self._getCompletions(data)
+
+    def _getCompletions(self, data):
 
         j = loads(data)
 
         comps = [c['k'] for c in j['r']]
 
-        return [mnemory.CompletionResult(c) for c in comps]
+        cs = [mnemory.CompletionResult(c) for c in comps]
+        return mnemory.request_data.CompletionReqData(cs)
 
 class Yahoo(mnemory.MnemPlugin):
 

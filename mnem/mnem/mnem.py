@@ -24,6 +24,15 @@ class MnemoryNotFoundError(MnemError):
     def getMnemoryKey(self):
         return self.key
 
+class MnemoryLocaleNotFound(MnemError):
+
+    def __init__(self, key, locale):
+        self.key = key
+        self.locale = locale
+
+    def __str__(self):
+        return "%s: %s" % (self.key, self.locale)
+
 class Mnem():
 
     def __init__(self):
@@ -33,7 +42,7 @@ class Mnem():
 
         # Build the manager
         simplePluginManager = PluginManager()
-        
+
         # Tell it the default place(s) where to find plugins
         simplePluginManager.getPluginLocator().updatePluginPlaces(PLUGIN_DIRS)
         # Load all plugins
@@ -41,10 +50,10 @@ class Mnem():
 
         # Activate all loaded plugins
         for plugin in simplePluginManager.getAllPlugins():
-            #print("Importing plugin: %s" % plugin.plugin_object.get_name())
+            # print("Importing plugin: %s" % plugin.plugin_object.get_name())
 
             mnemories = plugin.plugin_object.reportMnemories()
-            #print("  Providing: %s" % mnemories)
+            # print("  Providing: %s" % mnemories)
 
             for m in mnemories:
 
@@ -65,21 +74,10 @@ class Mnem():
         p = pprint.PrettyPrinter()
         p.pprint(self.mnemories)
 
-    def search(self, key, query, locale=None):
-
-        if not key in self.mnemories:
-            return None
-
-        #instantiate the search engine
-        m = self.mnemories[key](locale)
-        return m.submitSearch(query)
-
-    def complete(self, key, query, completion=None, locale=None):
-
+    def getMnemory(self, key, locale):
         try:
-            #instantiate the search engine
-            m = self.mnemories[key](locale)
+            m = self.mnemories[key]
         except KeyError:
             raise MnemoryNotFoundError(key)
 
-        return m.submitForSuggestions(completion, query)
+        return m(locale)

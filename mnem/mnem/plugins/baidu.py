@@ -13,7 +13,11 @@ class BaiduSearch(mnemory.SearchMnemory):
         self.base = "https://baidu.com"
 
     def availableCompletions(self):
-        return ["default"]
+        return [self.R_DEF_COMPLETE]
+
+    def _getSearchLoader(self, req_type):
+        if req_type == self.R_DEF_COMPLETE:
+            return mnemory.completion.UrlCompletionDataLoader(self._completionPat)
 
     def getBaseUrl(self):
         return self.base
@@ -29,17 +33,23 @@ class BaiduWebSearch(BaiduSearch):
     def __init__(self, locale=None):
         BaiduSearch.__init__(self)
 
-    def getRequestData(self, rtype, opts):
-        url = self.base + "/s?wd=%s"
-        return mnemory.getSimpleUrlDataQuoted(opts, url)
+    def _getRequestData(self, rtype, opts, data):
 
-    def getCompletions(self, result):
+        if rtype == self.R_DEF_SEARCH:
+            url = self.base + "/s?wd=%s"
+            return mnemory.getSimpleUrlDataQuoted(opts, url)
+        else:
+            return self._getCompletions(data)
+
+    def _getCompletions(self, result):
 
         result = self.stripJsonp(result)
 
         t = json.loads(result)
 
-        return [mnemory.CompletionResult(c) for c in t['s']]
+        cs = [mnemory.CompletionResult(c) for c in t['s']]
+
+        return mnemory.request_data.CompletionReqData(cs)
 
 
 class BaiduImageSearch(BaiduSearch):
@@ -52,20 +62,23 @@ class BaiduImageSearch(BaiduSearch):
     def __init__(self, locale=None):
         BaiduSearch.__init__(self)
 
-    def getRequestData(self, rtype, opts):
-        url = "http://image.baidu.com/search/index?tn=baiduimage&word=%s"
-        return mnemory.getSimpleUrlDataQuoted(opts, url)
+    def _getRequestData(self, rtype, opts, data):
 
-    def defaultCompletionLoader(self, completion):
-        return mnemory.completion.UrlCompletionDataLoader(self._completionPat)
+        if rtype == self.R_DEF_SEARCH:
+            url = "http://image.baidu.com/search/index?tn=baiduimage&word=%s"
+            return mnemory.getSimpleUrlDataQuoted(opts, url)
+        else:
+            return self._getCompletions(data)
 
-    def getCompletions(self, result):
+    def _getCompletions(self, result):
 
         # ugh, no quotes in the "JSON", jsut load the array
         result = self.stringLongestBetween(result, "[", "]", True)
         result = json.loads(result)
 
-        return [mnemory.CompletionResult(c) for c in result]
+        cs = [mnemory.CompletionResult(c) for c in result]
+
+        return mnemory.request_data.CompletionReqData(cs)
 
 
 class Baidu(mnemory.MnemPlugin):
