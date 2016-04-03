@@ -3,7 +3,6 @@
 
 from mnem import mnemory
 
-from urllib.parse import quote, unquote
 import json
 
 
@@ -30,8 +29,9 @@ class BaiduWebSearch(BaiduSearch):
     def __init__(self, locale=None):
         BaiduSearch.__init__(self)
 
-    def getRequestUrl(self, q):
-        return self.base + "/s?wd=%s" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + "/s?wd=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def getCompletions(self, result):
 
@@ -52,11 +52,12 @@ class BaiduImageSearch(BaiduSearch):
     def __init__(self, locale=None):
         BaiduSearch.__init__(self)
 
-    def getRequestUrl(self, q):
-        return "http://image.baidu.com/search/index?tn=baiduimage&word=%s" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = "http://image.baidu.com/search/index?tn=baiduimage&word=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def defaultCompletionLoader(self, completion):
-        return mnemory.UrlCompletionDataLoader(self._completionPat)
+        return mnemory.completion.UrlCompletionDataLoader(self._completionPat)
 
     def getCompletions(self, result):
 

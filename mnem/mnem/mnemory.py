@@ -224,3 +224,19 @@ class SearchMnemory(Mnemory):
         # shouldn't get here if the calling code if checking
         # for validity first!
         raise NotImplementedError
+
+from mnem import request_data
+from urllib.parse import quote
+
+def getSimpleUrlData(url_pat, query):
+    url = url_pat % quote(query)
+    return request_data.PlainUrlReqData(query, url)
+
+def getSimpleUrlDataQuoted(opts, url_pat, key='query'):
+
+    try:
+        q = opts['query']
+    except KeyError:
+        raise KeyError
+
+    return getSimpleUrlData(url_pat, q)

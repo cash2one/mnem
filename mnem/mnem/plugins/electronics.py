@@ -3,10 +3,7 @@
 
 from mnem import mnemory, completion
 
-from urllib.parse import quote
 from json import loads
-
-from lxml.html import fromstring
 
 class OctopartSearch(mnemory.SearchMnemory):
 
@@ -18,13 +15,14 @@ class OctopartSearch(mnemory.SearchMnemory):
     def __init__(self, locale=None):
         mnemory.SearchMnemory.__init__(self, None)
 
-    def getRequestUrl(self, q):
-        return self.base + "/search?q=" + quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + "/search?q="
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def availableCompletions(self):
         return ["default"]
 
-    def defaultCompletionLoader(self, completion):
+    def defaultCompletionLoader(self, ctype):
         apikey = "6911d9b3"  # FIXME this presumably rotates...
         url = "https://octopart.com/api/v3/suggest?apikey=" + apikey + "&q=%s&grouped=true"
 
@@ -71,8 +69,9 @@ class MouserSearch(mnemory.SearchMnemory):
     def getBaseUrl(self):
         return "http://" + self.domainForLocale(self.locale) + ".mouser.com"
 
-    def getRequestUrl(self, q):
-        return self.getBaseUrl() + "/Search/Refine.aspx?Keyword=%s" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.getBaseUrl() + "/Search/Refine.aspx?Keyword=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def defaultCompletionLoader(self, completion):
         api = self.getBaseUrl() + "/ajax/autosuggestion.ashx?q=%s"

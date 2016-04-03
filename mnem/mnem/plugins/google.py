@@ -37,8 +37,9 @@ class GoogleSearch(GoogleMnemory):
     def getBaseUrl(self):
         return self.base
 
-    def getRequestUrl(self, q):
-        return self.base + "/search?q=%s" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + "/search?q=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def defaultCompletionLoader(self, completion):
         url = self.base + "/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=%s"
@@ -63,8 +64,9 @@ class GoogleImageSearch(GoogleMnemory):
     def getBaseUrl(self):
         return self.base + "/imghp"
 
-    def getRequestUrl(self, q):
-        return self.base + "/search?tbm=isch&q=%s" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + "/search?tbm=isch&q=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def defaultCompletionLoader(self, completion):
         url = self.base + "/complete/search?client=img&hl=%s&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%%s" % self.langForLocale(self.locale)
@@ -95,8 +97,9 @@ class GoogleFinanceSearch(GoogleMnemory):
     def getBaseUrl(self):
         return self.base
 
-    def getRequestUrl(self, q):
-        return self.base + "?q=%s" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + "?q=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def defaultCompletionLoader(self, completion):
         url = self.base + "/match?matchtype=matchall&q=%s"
@@ -125,11 +128,9 @@ class GoogleTrendsSearch(GoogleMnemory):
 
         mnemory.SearchMnemory.__init__(self, locale)
 
-    def getBaseUrl(self):
-        return self.base
-
-    def getRequestUrl(self, q):
-        return self.base + "/explore#q=%s" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + "/explore#q=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def defaultCompletionLoader(self, completion):
         url = self.base + "/entitiesQuery?tn=10&q=%s"
@@ -162,11 +163,9 @@ class GoogleScholarSearch(GoogleMnemory):
 
         mnemory.SearchMnemory.__init__(self, locale)
 
-    def getBaseUrl(self):
-        return self.base
-
-    def getRequestUrl(self, q):
-        return self.base + "/scholar?q=%s" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + "/scholar?q=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def availableCompletions(self):
         """Scholar doesn't have completions
@@ -183,8 +182,9 @@ class YoutubeSearch(mnemory.SearchMnemory):
 
         self.base = "http://youtube.com"
 
-    def getRequestUrl(self, q):
-        return self.base + "/results?search_query=%s" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + "/results?search_query=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def defaultCompletionLoader(self, completion):
         url = "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=%s"

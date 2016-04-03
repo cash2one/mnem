@@ -42,10 +42,6 @@ class FarnellSearch(mnemory.SearchMnemory):
             self.R_MANUFACTURER
         ]
 
-    def getRequestUrl(self, query, request):
-
-        raise DeprecationWarning
-
     def getRequestData(self, req_type, options):
 
         try:

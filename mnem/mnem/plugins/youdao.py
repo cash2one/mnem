@@ -21,13 +21,14 @@ class YouDaoDictSearch(mnemory.SearchMnemory):
     def availableCompletions(self):
         return ["default"]
 
-    def getRequestUrl(self, q):
-        return "http://dict.youdao.com/search?q=%s&keyfrom=dict.index" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + '/search?q=%s&keyfrom=dict.index'
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def defaultCompletionLoader(self, completion):
 
         url = "http://dsuggest.ydstatic.com/suggest/suggest.s?query=%s"
-        return mnemory.UrlCompletionDataLoader(url)
+        return mnemory.completion.UrlCompletionDataLoader(url)
 
     def getCompletions(self, data):
 

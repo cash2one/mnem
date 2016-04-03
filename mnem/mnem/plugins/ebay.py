@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from mnem import mnemory
-from urllib.parse import quote, unquote
 import json
 
 class EbaySearch(mnemory.SearchMnemory):
@@ -18,8 +17,9 @@ class EbaySearch(mnemory.SearchMnemory):
     def availableCompletions(self):
         return ["default"]
 
-    def getRequestUrl(self, q):
-        return self.base + "/sch/i.html?_nkw=%s" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + "/sch/i.html?_nkw=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def defaultCompletionLoader(self, completion):
 
@@ -30,7 +30,7 @@ class EbaySearch(mnemory.SearchMnemory):
 
         url = "http://autosug.ebaystatic.com/autosug?kwd=%s&sId=" + sid
 
-        return mnemory.UrlCompletionDataLoader(url)
+        return mnemory.completion.UrlCompletionDataLoader(url)
 
     def getCompletions(self, result):
 

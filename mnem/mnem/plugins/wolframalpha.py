@@ -20,13 +20,14 @@ class WolframAlphaSearch(mnemory.SearchMnemory):
     def availableCompletions(self):
         return ["default"]
 
-    def getRequestUrl(self, q):
-        return self.base + "/input/?i=" + quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + "/input/?i=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def defaultCompletionLoader(self, completion):
 
         url = self.base + "/input/autocomplete.jsp?qr=0&i=%s"
-        return mnemory.UrlCompletionDataLoader(url)
+        return mnemory.completion.UrlCompletionDataLoader(url)
 
     def getCompletions(self, result):
 

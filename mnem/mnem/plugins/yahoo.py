@@ -3,7 +3,6 @@
 
 from mnem import mnemory
 
-from urllib.parse import quote
 from json import loads
 
 class YahooSearch(mnemory.SearchMnemory):
@@ -29,11 +28,12 @@ class YahooWebSearch(YahooSearch):
     def __init__(self, locale):
         YahooSearch.__init__(self)
 
-    def getRequestUrl(self, q):
-        return self.base + "/search?p=%s" % quote(q)
+    def getRequestData(self, rtype, opts):
+        url = self.base + "/search?p=%s"
+        return mnemory.getSimpleUrlDataQuoted(opts, url)
 
     def defaultCompletionLoader(self, completion):
-        return mnemory.UrlCompletionDataLoader(self._completionPat)
+        return mnemory.completion.UrlCompletionDataLoader(self._completionPat)
 
     def getCompletions(self, data):
 
