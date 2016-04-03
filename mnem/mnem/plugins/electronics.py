@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory
+from mnem import mnemory, completion
 
 from urllib.parse import quote
 from json import loads
@@ -28,7 +28,7 @@ class OctopartSearch(mnemory.SearchMnemory):
         apikey = "6911d9b3"  # FIXME this presumably rotates...
         url = "https://octopart.com/api/v3/suggest?apikey=" + apikey + "&q=%s&grouped=true"
 
-        return mnemory.UrlCompletionDataLoader(url)
+        return completion.UrlCompletionDataLoader(url)
 
     def getCompletions(self, result):
 
@@ -76,7 +76,7 @@ class MouserSearch(mnemory.SearchMnemory):
 
     def defaultCompletionLoader(self, completion):
         api = self.getBaseUrl() + "/ajax/autosuggestion.ashx?q=%s"
-        return mnemory.UrlCompletionDataLoader(api)
+        return completion.UrlCompletionDataLoader(api)
 
     def getCompletions(self, data):
 
@@ -113,12 +113,29 @@ class FarnellSearch(mnemory.SearchMnemory):
 
         return "http://" + self.domainForLocale(self.locale) + ".farnell.com"
 
-    def getRequestUrl(self, q):
-        return self.getBaseUrl() + "/Search?st=%s" % quote(q)
+    def availableRequests(self):
+        return [
+            'product',
+            'manufacturer',
+            'category'
+        ]
+
+    def getRequestUrl(self, query, request):
+
+        if request == 'manufacturer':
+            url = self.getBaseUrl() + "/" + query
+        elif request == 'category':
+            url = self.getBaseUrl() + "/" + query
+        elif request == 'product':
+            url = self.getBaseUrl() + "/Search?st=%s" % quote(query)
+        else:
+            raise ValueError
+
+        return url
 
     def defaultCompletionLoader(self, completion):
         api = self.getBaseUrl() + "/webapp/wcs/stores/servlet/AjaxSearchLookAhead?searchTerm=%s"
-        return mnemory.UrlCompletionDataLoader(api)
+        return completion.UrlCompletionDataLoader(api)
 
     def providesCompletionsForQuery(self, query, completion):
         # farnell only resposnds to queries of 3 or more chars

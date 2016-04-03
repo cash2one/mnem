@@ -1,12 +1,6 @@
 from yapsy.IPlugin import IPlugin
 
-import requests
-
-import urllib.request
-from urllib.parse import quote
-
-from mnem.mnem import MnemError
-
+from mnem import completion
 
 class MnemPlugin(IPlugin):
 
@@ -50,98 +44,6 @@ class Mnemory:
 
     def __init__(self, locale=None):
         self.locale = locale
-
-
-class CompletionError(MnemError):
-    pass
-
-
-class CompletionNotAvailableError(CompletionError):
-    """Exception raised when a completion is not available
-    """
-
-    def __init__(self, completion):
-        self.completion = completion
-
-    def __str__(self):
-        return self.completion
-
-    def getCompletion(self):
-        return self.completion
-
-
-class CompletionFetchError(CompletionError):
-
-    def __init__(self, engine, url, query, exception=None):
-        self.engine = engine
-        self.url = url
-        self.query = query
-        self.exception = exception
-
-    def __str__(self):
-        s = "%s\n%s\n%s" % (self.engine, self.url, self.query)
-
-        if self.exception:
-            s += '\n%s' % self.exception
-
-        return s
-
-
-class CompletionParseError(CompletionError):
-
-    def __init__(self, engine, data, innerExcept):
-        self.data = data
-        self.engine = engine
-        self.innerExcept = innerExcept
-
-    def __str__(self):
-        return "%s\n%s\n%s" % (self.engine, self.data, self.innerExcept)
-
-class CompletionDataLoader(object):
-
-    def _load(self):
-        '''
-        Perform the completion load - inheritors have to provide this
-        '''
-        raise NotImplementedError
-
-class UrlCompletionDataLoader(CompletionDataLoader):
-    '''
-    Simple loader for inpterpolating a string into a URL and fetching
-    '''
-
-    def __init__(self, pattern):
-        self.pattern = pattern
-
-    def _load(self, query):
-        '''
-        Interpolate the query into the URL pattern and fetch
-        '''
-
-        try:
-            data = requests.get(self.pattern % quote(query), timeout=5)
-            data.close()
-        except Exception as e:
-            raise CompletionFetchError(self, self.pattern, query, exception=e)
-
-        return data.text
-
-class FileCompletionLoader(CompletionDataLoader):
-    '''
-    Really simple loader for loading completions from a fixed file. Probably
-    mostly useful for tests
-    '''
-
-    def __init__(self, filename):
-        self.fn = filename
-
-    def _load(self, filename):
-
-        f = open(self.fn, 'r')
-        data = f.read()
-        f.close()
-
-        return data
 
 class SearchMnemory(Mnemory):
 
@@ -237,7 +139,7 @@ class SearchMnemory(Mnemory):
 
         if (not self.providesCompletions() or
                 completion not in self.availableCompletions()):
-            raise CompletionNotAvailableError(completion)
+            raise completion.CompletionNotAvailableError(completion)
 
         # occasionally, completions for certain queries might be impossible
         # and we might be abl to catch them early rather than waiting for a
@@ -275,6 +177,14 @@ class SearchMnemory(Mnemory):
         # default: doesn't provide any completions
         return []
 
+    def availableRequests(self):
+        '''
+        Returns a list of requests
+        Default is to provide a single default request type (since it's
+        normal for a search engine to provide searches)
+        '''
+        return ['default']
+
     def providesCompletions(self):
         return len(self.availableCompletions())
 
@@ -291,11 +201,19 @@ class SearchMnemory(Mnemory):
             return comps[0]
         except IndexError:
             # hmm, should this be a separate error type?
-            raise CompletionNotAvailableError("$default")
+            raise completion.CompletionNotAvailableError("$default")
+
+    def getRequestLoader(self, req_type, options):
+        '''
+        Gets the request loader for this engine of the given type, with
+        the given options
+        '''
+        raise NotImplementedError
 
     def getRequestUrl(self, query):
-        """Gets the URL for a search query
-        """
+        '''
+        Gets the URL for a search query
+        '''
         raise NotImplementedError
 
     def getCompletions(self, loader, completion, query):

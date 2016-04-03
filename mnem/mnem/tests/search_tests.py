@@ -1,6 +1,6 @@
 
 import unittest
-from mnem.mnemory import FileCompletionLoader
+from mnem.completion import FileCompletionLoader
 
 DEFAULT_MIN_RESULTS = 5;
 
