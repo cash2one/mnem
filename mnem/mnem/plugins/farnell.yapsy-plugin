@@ -1,0 +1,8 @@
+[Core]
+Name = Farnell
+Module = farnell
+
+[Documentation]
+Author = John Beard
+Version = 0.1
+Description = Farnell/Element14/Newark electronics supply searches
