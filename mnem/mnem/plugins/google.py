@@ -3,6 +3,7 @@
 
 from mnem import mnemory
 
+from mnem import completion
 from mnem.completion import UrlCompletionDataLoader as UCL
 from json import loads
 
@@ -134,7 +135,7 @@ class GoogleTrendsSearch(GoogleMnemory):
         url = self.base + "/entitiesQuery?tn=10&q=%s"
         return UCL(url)
 
-    def getCompletions(self, completion, q):
+    def getCompletions(self, data):
 
         def parseResult(e):
             res = mnemory.CompletionResult(e['title'],
@@ -142,14 +143,12 @@ class GoogleTrendsSearch(GoogleMnemory):
                     url=self.getRequestUrl(e['mid']))
             return res
 
-        url = self.base + "/entitiesQuery?tn=10&q=%s"
-
-        data = self.load_from_url(url, q).json()
+        data = loads(data)
 
         try:
             res = [parseResult(x) for x in data['entityList']]
         except Exception as e:
-            raise mnemory.CompletionParseError(self, data, e)
+            raise completion.CompletionParseError(self, data, e)
 
         return res
 

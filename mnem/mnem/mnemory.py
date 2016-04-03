@@ -137,11 +137,6 @@ class SearchMnemory(Mnemory):
     def stripJsonp(jsonp):
         return SearchMnemory.stringLongestBetween(jsonp, "(", ")", False)
 
-    def load_from_url(self, url_pattern, query):
-
-        # dprecated
-        raise NotImplementedError
-
     def submitForSuggestions(self, completion, query):
 
         if not completion:
