@@ -2,9 +2,35 @@
 import unittest
 from mnem.completion import FileCompletionLoader
 
+import os
+
 DEFAULT_MIN_RESULTS = 5;
 
 class SearchTest(unittest.TestCase):
+
+    DBG_NONE = 0
+    DBG_ERROR = 1
+    DBG_WARNING = 2
+    DBG_INFO = 3
+    DBG_DEBUG = 4
+    DBG_VERBOSE = 5
+
+    @classmethod
+    def getDebugLevel(c):
+
+        key = 'MNEM_TEST_VERBOSITY'
+
+        try:
+            level = int(os.environ[key])
+
+            if level < c.DBG_NONE or level > c.DBG_VERBOSE:
+                raise ValueError
+        except KeyError:
+            level = c.DBG_ERROR
+        except ValueError:
+            raise ValueError("Test verbosity env var %s must be integer from 0-5, have '%s'" % (key, os.environ[key]))
+
+        return level
 
     def getFileTestDataLoader(self, name):
         '''
