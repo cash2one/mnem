@@ -4,7 +4,7 @@ import argparse
 
 from mnem import mnem, mnemory
 
-from flask import Flask, jsonify, abort, make_response
+from flask import Flask, jsonify
 from flask.ext.restful import Api, Resource, reqparse, fields, marshal
 
 """RESTful Mnem server"""
@@ -41,15 +41,17 @@ class MnemorySearchInfoAPI(Resource):
 
         return jc
 
-class MnemorySearchQueryAPI(Resource):
+class MnemorySearchAPI(Resource):
 
-    def get(self, key, query, locale=None):
-        mnemory = m.mnemories[key](locale)
+    def get(self, key, query, type=None, locale=None):
 
-        type = mnemory.getDefaultRequestType()
+        mnemory = m.mnemories[key](locale)  # maybe opts too if we have other, engine specific setup to do?
 
         if not type:
-            raise ValueError  # TODO need a way to bail here
+            type = mnemory.getDefaultRequestType()
+
+        if not type:
+            raise ValueError("No search for the query found")  # TODO need a way to bail here
 
         res = mnemory.getRequestData(type, {'query': query})
 
@@ -141,8 +143,16 @@ class MnemoryCompletionDefaultAPI(MnemoryCompletionLocaleAPI):
         return MnemoryCompletionLocaleAPI.get(self, key, query, None, None)
 
 api.add_resource(MnemoryListAPI, '/mnemory', endpoint='mnemories')
+
 api.add_resource(MnemorySearchInfoAPI, '/search/<string:key>', endpoint='searchinfo')
-api.add_resource(MnemorySearchQueryAPI, '/search/<string:key>/query/<string:query>', endpoint='searchquery')
+
+api.add_resource(MnemorySearchAPI,
+                 '/search/<string:key>/query/<string:query>',
+                 '/search/<string:key>/<string:locale>/query/<string:query>',
+                 '/search/<string:key>/type/<string:type>/query/<string:query>',
+                 '/search/<string:key>/<string:locale>/type/<string:type>/query/<string:query>',
+                 endpoint="search")
+
 api.add_resource(MnemoryCompletionDefaultAPI, '/complete/<string:key>/<string:query>', endpoint='completions_default')
 api.add_resource(MnemoryCompletionAPI, '/complete/<string:key>/completion/<string:completion>/<string:query>', endpoint='completions')
 api.add_resource(MnemoryCompletionLocaleAPI, '/complete/<string:key>/completion/<string:completion>/locale/<string:locale>/<string:query>', endpoint='completions_locale')
