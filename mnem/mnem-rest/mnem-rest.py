@@ -25,7 +25,6 @@ class MnemoryListAPI(Resource):
                 'key': key
             }
 
-
         return {'mnemories': [presentMnemory(mnemory) for mnemory in m.mnemories]}
 
 class MnemorySearchInfoAPI(Resource):
@@ -89,10 +88,9 @@ def constructError(errKey, context):
         err['error']['context'] = context
     return err
 
-class MnemoryCompletionLocaleAPI(Resource):
+class MnemoryCompletionAPI(Resource):
 
-    def get(self, key, query, completion, locale):
-
+    def get(self, key, query, locale=None, completion=None):
         try:
             comps = m.complete(key, query, completion, locale)
 
@@ -126,21 +124,6 @@ class MnemoryCompletionLocaleAPI(Resource):
 
         return jc
 
-class MnemoryCompletionAPI(MnemoryCompletionLocaleAPI):
-    """Wrapping inheritor for given completion in defualt locale for
-    a given completion engine
-    """
-
-    def get(self, key, completion, query):
-        return MnemoryCompletionLocaleAPI.get(self, key, query, completion, None)
-
-class MnemoryCompletionDefaultAPI(MnemoryCompletionLocaleAPI):
-    """Wrapping inheritor for use of the default completion for a
-    completion engine
-    """
-
-    def get(self, key, query):
-        return MnemoryCompletionLocaleAPI.get(self, key, query, None, None)
 
 api.add_resource(MnemoryListAPI, '/mnemory', endpoint='mnemories')
 
@@ -153,9 +136,12 @@ api.add_resource(MnemorySearchAPI,
                  '/search/<string:key>/<string:locale>/type/<string:type>/query/<string:query>',
                  endpoint="search")
 
-api.add_resource(MnemoryCompletionDefaultAPI, '/complete/<string:key>/<string:query>', endpoint='completions_default')
-api.add_resource(MnemoryCompletionAPI, '/complete/<string:key>/completion/<string:completion>/<string:query>', endpoint='completions')
-api.add_resource(MnemoryCompletionLocaleAPI, '/complete/<string:key>/completion/<string:completion>/locale/<string:locale>/<string:query>', endpoint='completions_locale')
+api.add_resource(MnemoryCompletionAPI,
+                 '/complete/<string:key>/query/<string:query>',
+                 '/complete/<string:key>/<string:locale>/query/<string:query>',
+                 '/complete/<string:key>/type/<string:completion>/query/<string:query>',
+                 '/complete/<string:key>/<string:locale>/type/<string:completion>/query/<string:query>',
+                 endpoint='completion')
 
 if __name__ == '__main__':
 

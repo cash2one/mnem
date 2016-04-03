@@ -66,7 +66,7 @@ class FarnellSearch(mnemory.SearchMnemory):
 
     def defaultCompletionLoader(self, completion):
         api = self.getBaseUrl() + "/webapp/wcs/stores/servlet/AjaxSearchLookAhead?searchTerm=%s"
-        return completion.UrlCompletionDataLoader(api)
+        return mnemory.completion.UrlCompletionDataLoader(api)
 
     def providesCompletionsForQuery(self, query, completion):
         # farnell only resposnds to queries of 3 or more chars
