@@ -45,11 +45,16 @@ class PlainUrlReqData(RequestData):
 
     def getData(self):
 
-        return {
+        d = {
             'term': self.search_term,
-            'uri': self.url,
-            'title': self.title
+            'uri': self.url
         }
+
+        # this bit is optional
+        if self.title:
+            d['title'] = self.title
+
+        return d
 
 class CompletionReqData(RequestData):
     '''
