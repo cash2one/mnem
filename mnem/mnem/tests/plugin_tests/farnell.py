@@ -6,7 +6,7 @@ Created on 1 Apr 2016
 
 from mnem.tests import search_tests
 
-from mnem.plugins.electronics import FarnellSearch
+from mnem.plugins.farnell import FarnellSearch
 
 class FarnellTest(search_tests.SearchTest):
 
