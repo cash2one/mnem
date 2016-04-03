@@ -41,10 +41,10 @@ class EbaySearch(mnemory.SearchMnemory):
 
 class Ebay(mnemory.MnemPlugin):
 
-    def get_name(self):
+    def getName(self):
         return "Ebay Searches"
 
-    def report_mnemories(self):
+    def reportMnemories(self):
         return [
             EbaySearch
         ]

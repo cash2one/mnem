@@ -4,23 +4,12 @@ from mnem import completion
 
 class MnemPlugin(IPlugin):
 
-    def get_name(self):
+    def getName(self):
         raise NotImplementedError
 
 
 class SearchResult:
     pass
-
-
-class UrlResult(SearchResult):
-
-    def __init__(self, keyword, uri):
-        self.uri = uri
-        self.keyword = keyword
-
-    def __str__(self):
-        return self.uri
-
 
 class CompletionResult(SearchResult):
 

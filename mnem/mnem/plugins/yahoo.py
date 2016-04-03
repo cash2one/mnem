@@ -45,10 +45,10 @@ class YahooWebSearch(YahooSearch):
 
 class Yahoo(mnemory.MnemPlugin):
 
-    def get_name(self):
+    def getName(self):
         return "Yahoo Searches"
 
-    def report_mnemories(self):
+    def reportMnemories(self):
         return [
             YahooWebSearch
         ]

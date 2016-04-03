@@ -128,10 +128,10 @@ class FarnellSearch(mnemory.SearchMnemory):
 
 class FarnellPlugin(mnemory.MnemPlugin):
 
-    def get_name(self):
+    def getName(self):
         return "Farnell/Element14/Newark Searches"
 
-    def report_mnemories(self):
+    def reportMnemories(self):
         return [
             FarnellSearch
         ]

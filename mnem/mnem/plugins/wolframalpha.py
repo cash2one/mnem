@@ -36,10 +36,10 @@ class WolframAlphaSearch(mnemory.SearchMnemory):
 
 class WolframAlpha(mnemory.MnemPlugin):
 
-    def get_name(self):
+    def getName(self):
         return "Wolfram Alpha Searches"
 
-    def report_mnemories(self):
+    def reportMnemories(self):
         return [
             WolframAlphaSearch
         ]

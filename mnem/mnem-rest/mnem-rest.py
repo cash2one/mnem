@@ -124,7 +124,6 @@ class MnemoryCompletionAPI(Resource):
 
         return jc
 
-
 api.add_resource(MnemoryListAPI, '/mnemory', endpoint='mnemories')
 
 api.add_resource(MnemorySearchInfoAPI, '/search/<string:key>', endpoint='searchinfo')

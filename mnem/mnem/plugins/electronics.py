@@ -95,10 +95,10 @@ class MouserSearch(mnemory.SearchMnemory):
 
 class ElectronicsSupply(mnemory.MnemPlugin):
 
-    def get_name(self):
+    def getName(self):
         return "Electronics Supply Searches"
 
-    def report_mnemories(self):
+    def reportMnemories(self):
         return [
             OctopartSearch,
             MouserSearch

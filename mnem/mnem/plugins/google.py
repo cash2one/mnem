@@ -199,10 +199,10 @@ class YoutubeSearch(mnemory.SearchMnemory):
 
 class Google(mnemory.MnemPlugin):
 
-    def get_name(self):
+    def getName(self):
         return "Google Searches"
 
-    def report_mnemories(self):
+    def reportMnemories(self):
         return [
             GoogleSearch,
             GoogleImageSearch,

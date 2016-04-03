@@ -136,10 +136,10 @@ class WikimediaCommonsSearch(MediaWikiMnemory):
 
 class MediaWiki(mnemory.MnemPlugin):
 
-    def get_name(self):
+    def getName(self):
         return "MediaWiki Searches"
 
-    def report_mnemories(self):
+    def reportMnemories(self):
         return [
             WikipediaSearch,
             WikisourceSearch,

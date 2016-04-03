@@ -43,7 +43,7 @@ class Mnem():
         for plugin in simplePluginManager.getAllPlugins():
             #print("Importing plugin: %s" % plugin.plugin_object.get_name())
 
-            mnemories = plugin.plugin_object.report_mnemories()
+            mnemories = plugin.plugin_object.reportMnemories()
             #print("  Providing: %s" % mnemories)
 
             for m in mnemories:

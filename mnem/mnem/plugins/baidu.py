@@ -69,10 +69,10 @@ class BaiduImageSearch(BaiduSearch):
 
 class Baidu(mnemory.MnemPlugin):
 
-    def get_name(self):
+    def getName(self):
         return "Baidu Searches"
 
-    def report_mnemories(self):
+    def reportMnemories(self):
         return [
             BaiduWebSearch,
             BaiduImageSearch

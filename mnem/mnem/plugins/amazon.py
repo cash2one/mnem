@@ -52,10 +52,10 @@ class AmazonSearch(mnemory.SearchMnemory):
 
 class Amazon(mnemory.MnemPlugin):
 
-    def get_name(self):
+    def getName(self):
         return "Amazon Searches"
 
-    def report_mnemories(self):
+    def reportMnemories(self):
         return [
             AmazonSearch
         ]
