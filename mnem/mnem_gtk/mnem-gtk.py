@@ -82,6 +82,61 @@ class MnemEntryBox(object):
 
         self.mainapp.do_search(search)
 
+class MnemResultListModel(object):
+
+    NONE_SELECTED = -1
+
+    def __init__(self, mainapp):
+        self.listener = None
+        self.mainapp = mainapp
+        self.results = []
+
+        self.reset()
+
+    def reset(self):
+        self.focussed = self.NONE_SELECTED
+
+    def set_results(self, results):
+        self.results = results
+        self.listener.result_model_changed()
+
+    def confirm_entry(self):
+
+        try:
+            self.results[self.focussed].perform_main_action()
+        except IndexError:
+            pass
+
+    def select_next(self):
+
+        old_foc = self.focussed
+
+        self.focussed += 1
+
+        if self.focussed >= len(self.results):
+            self.focussed = 0
+
+        self.listener.change_selected(old_foc, self.focussed)
+
+    def select_prev(self):
+
+        old_foc = self.focussed
+
+        self.focussed -= 1
+
+        # if no focus or last, go to the end
+        if self.focussed < 0:
+            self.focussed = len(self.results) - 1
+
+        self.listener.change_selected(old_foc, self.focussed)
+
+    def keyword_selected(self, keyword):
+        '''
+        Pass onto the main app
+        '''
+        self.mainapp.keyword_selected(keyword)
+
+
 class ResultContainer(Gtk.HBox):
 
     def __init__(self, result, selected_listener):
@@ -126,76 +181,50 @@ class ResultContainer(Gtk.HBox):
     def perform_main_action(self):
 
         if self.url:
-
             webbrowser.open(self.url, new=2, autoraise=True)
 
 
-class ResultListBox(Gtk.VBox):
+class ResultListBox(object):
 
-    def __init__(self, selection_listener):
+    def __init__(self, model):
         super(ResultListBox, self).__init__()
 
-        self.selection_listener = selection_listener
-        self.results = []
-        self.reset()
+        self.model = model
+        self.result_conts = []
+        self.box = Gtk.VBox()
+        self.box.show()
 
-    def clear(self):
+        self.model.listener = self
 
-        for r in self.results:
+    def _clear(self):
+
+        for r in self.result_conts:
             r.destroy()
 
-        self.results = []
+        self.result_conts = []
 
-        self.reset()
+    def result_model_changed(self):
 
-    def reset(self):
-        self.focussed = -1
+        self._clear()
 
-    def add_completion(self, c):
+        for res in self.model.results:
+            res_cont = ResultContainer(res, self.model)
 
-        resCont = ResultContainer(c, self.selection_listener)
+            self.result_conts.append(res_cont)
 
-        self.results.append(resCont)
+            self.box.pack_start(res_cont, expand=False, fill=False, padding=0)
 
-        self.pack_start(resCont, expand=False, fill=False, padding=0)
-        resCont.show()
+        self.box.show_all()
 
-    def confirm_entry(self):
+    def change_selected(self, old, new):
 
         try:
-            self.results[self.focussed].perform_main_action()
+            self.result_conts[old].select(False)
         except IndexError:
             pass
 
-    def select_next(self):
+        self.result_conts[new].select(True)
 
-        try:
-            self.results[self.focussed].select(False)
-        except IndexError:
-            pass
-
-        self.focussed += 1
-
-        if self.focussed >= len(self.results):
-            self.focussed = 0
-
-        if self.focussed < len(self.results):
-            self.results[self.focussed].select(True)
-
-    def select_prev(self):
-
-        try:
-            self.results[self.focussed].select(False)
-        except IndexError:
-            pass
-
-        self.focussed -= 1
-
-        # if no focus or last, go to the end
-        if self.focussed < 0:
-            self.focussed = len(self.results) - 1
-
-        self.results[self.focussed].select(True)
 
 class MnemAppWindow(Gtk.Window):
 
@@ -204,8 +233,6 @@ class MnemAppWindow(Gtk.Window):
 
         self.client = client
         self.connect("destroy", self.stop)
-
-        self.set_default_size(300, 0)
 
         style_provider = Gtk.CssProvider()
 
@@ -260,8 +287,9 @@ class MnemAppWindow(Gtk.Window):
         self.entry_box = MnemEntryBox(self)
         self.main_box.add(self.entry_box.box)
 
-        self.completions = ResultListBox(self)
-        self.main_box.add(self.completions)
+        self.result_model = MnemResultListModel(self)
+        self.result_box = ResultListBox(self.result_model)
+        self.main_box.add(self.result_box.box)
 
         self.add(self.main_box)
 
@@ -289,12 +317,12 @@ class MnemAppWindow(Gtk.Window):
 
     def handle_cycle(self, forward):
         if forward:
-            self.completions.select_next()
+            self.result_model.select_next()
         else:
-            self.completions.select_prev()
+            self.result_model.select_prev()
 
     def handle_enter(self):
-        self.completions.confirm_entry()
+        self.result_model.confirm_entry()
 
     def keyword_selected(self, keyword):
 
@@ -351,12 +379,7 @@ class MnemAppWindow(Gtk.Window):
         if "completions" not in comps:
             return
 
-        self.completions.clear()
-
-        for c in comps["completions"]:
-            self.completions.add_completion(c)
-
-        self.completions.show_all()
+        self.result_model.set_results(comps["completions"])
 
 
 class MnemGtk(object):
@@ -396,7 +419,9 @@ class SearchRequestThread(threading.Thread):
 
     def run(self):
 
-        res = self.client.getCompletions(self.key, self.reqtype, self.query)
+        # res = self.client.getCompletions(self.key, self.reqtype, self.query)
+
+        res = {'completions': [{'url': 'https://yahoo.com/search?p=dictionary', 'keyword': 'dictionary'}, {'url': 'https://yahoo.com/search?p=domino%27s%20pizza', 'keyword': "domino's pizza"}, {'url': 'https://yahoo.com/search?p=discover%20card%20login', 'keyword': 'discover card login'}, {'url': 'https://yahoo.com/search?p=drudge%20report%202016', 'keyword': 'drudge report 2016'}, {'url': 'https://yahoo.com/search?p=delta', 'keyword': 'delta'}, {'url': 'https://yahoo.com/search?p=directv', 'keyword': 'directv'}, {'url': 'https://yahoo.com/search?p=driving%20directions', 'keyword': 'driving directions'}, {'url': 'https://yahoo.com/search?p=dish%20network', 'keyword': 'dish network'}, {'url': 'https://yahoo.com/search?p=dmv', 'keyword': 'dmv'}, {'url': 'https://yahoo.com/search?p=drudge%20report', 'keyword': 'drudge report'}]}
 
         self.handler(res)
 
