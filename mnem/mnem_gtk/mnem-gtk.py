@@ -24,6 +24,63 @@ import webbrowser
 
 import threading
 
+class MnemEntryBoxModel(object):
+    '''
+    Class to represent the model for the entry box area of the UI
+    '''
+
+    def __init__(self, listener):
+        self.entered = ''
+        self.searchkey = ''
+        self.listener = listener
+
+    def setEntered(self, entered):
+        self.entered = entered
+        self.listener.changed()
+
+class MnemEntryBox(object):
+    '''
+    UI for the entry box area
+    '''
+
+    def __init__(self, mainapp):
+        self.mainapp = mainapp
+
+        self.model = MnemEntryBoxModel(self)
+
+        self.box = Gtk.VBox()
+
+        self.main_input = Gtk.Entry()
+        self.entry_change_sigid = self.main_input.connect(
+            'changed', self.search_changed)
+
+        self.box.pack_start(
+            self.main_input, expand=False, fill=False, padding=0)
+
+    def changed(self):
+        '''
+        Callback from the model on change
+        '''
+        print('changed')
+
+    def get_entry_text(self):
+        return self.main_input.get_text()
+
+    def set_key_query(self, key, query):
+
+        self.main_input.disconnect(self.entry_change_sigid)
+        self.main_input.set_text("%s %s" % (key, query))
+        self.entry_change_sigid = self.main_input.connect(
+            'changed', self.search_changed)
+
+        # self.main_input.set_position(-1)  # end
+        self.main_input.select_region(-1, -1)
+
+    def search_changed(self, entry):
+
+        search = entry.get_text()
+
+        self.mainapp.do_search(search)
 
 class ResultContainer(Gtk.HBox):
 
@@ -148,6 +205,8 @@ class MnemAppWindow(Gtk.Window):
         self.client = client
         self.connect("destroy", self.stop)
 
+        self.set_default_size(300, 0)
+
         style_provider = Gtk.CssProvider()
 
         css = """
@@ -198,12 +257,8 @@ class MnemAppWindow(Gtk.Window):
 
         self.main_box = Gtk.VBox()
 
-        self.main_input = Gtk.Entry()
-        self.entry_change_sigid = self.main_input.connect(
-            'changed', self.search_changed)
-
-        self.main_box.pack_start(
-            self.main_input, expand=False, fill=False, padding=0)
+        self.entry_box = MnemEntryBox(self)
+        self.main_box.add(self.entry_box.box)
 
         self.completions = ResultListBox(self)
         self.main_box.add(self.completions)
@@ -243,21 +298,13 @@ class MnemAppWindow(Gtk.Window):
 
     def keyword_selected(self, keyword):
 
-        text = self.main_input.get_text()
+        text = self.entry_box.get_entry_text()
 
-        key, query = self.get_key_query(text)
+        key, query = self._get_key_query(text)
 
-        self.main_input.disconnect(self.entry_change_sigid)
-        self.set_key_query(key, keyword)
-        self.entry_change_sigid = self.main_input.connect(
-            'changed', self.search_changed)
+        self.entry_box.set_key_query(key, keyword)
 
-    def set_key_query(self, key, query):
-        self.main_input.set_text("%s %s" % (key, query))
-        # self.main_input.set_position(-1)  # end
-        self.main_input.select_region(-1, -1)
-
-    def get_key_query(self, text):
+    def _get_key_query(self, text):
 
         parts = text.split(" ", 1)
 
@@ -273,11 +320,9 @@ class MnemAppWindow(Gtk.Window):
 
         return key, query
 
-    def search_changed(self, entry):
+    def do_search(self, search):
 
-        search = entry.get_text()
-
-        key, query = self.get_key_query(search)
+        key, query = self._get_key_query(search)
 
         self.perform_search(key, query)
 
