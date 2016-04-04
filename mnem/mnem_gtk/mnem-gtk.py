@@ -36,7 +36,7 @@ class ResultContainer(Gtk.HBox):
         try:
             self.url = result["url"]
         except KeyError:
-            pass
+            self.url = None
 
         self.keyword = result["keyword"]
 
@@ -45,11 +45,12 @@ class ResultContainer(Gtk.HBox):
 
         self.pack_start(keyword, expand=False, fill=True, padding=0)
 
-        urlLabel = Gtk.Label(self.url)
-        urlLabel.set_justify(Gtk.Justification.LEFT)
-        urlLabel.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
+        if self.url:
+            urlLabel = Gtk.Label(self.url)
+            urlLabel.set_justify(Gtk.Justification.LEFT)
+            urlLabel.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
 
-        self.pack_end(urlLabel, expand=False, fill=True, padding=100)
+            self.pack_end(urlLabel, expand=False, fill=True, padding=100)
 
         # self.set_can_focus(True)
 
@@ -251,7 +252,7 @@ class MnemAppWindow(Gtk.Window):
 
     def set_key_query(self, key, query):
         self.main_input.set_text("%s %s" % (key, query))
-        #self.main_input.set_position(-1)  # end
+        # self.main_input.set_position(-1)  # end
         self.main_input.select_region(-1, -1)
 
     def get_key_query(self, text):
@@ -294,7 +295,7 @@ class MnemAppWindow(Gtk.Window):
             key = self.client.cfg.get('complete', 'default', fallback='google')
 
         try:
-            comps = self.client.getCompletions(key, None, query)
+            comps = self.client.getCompletions(key, 'complete', query)
         except:
             raise
 
@@ -304,6 +305,8 @@ class MnemAppWindow(Gtk.Window):
         self.handle_completions(comps)
 
     def handle_completions(self, comps):
+
+        print(comps)
 
         if "completions" not in comps:
             return
