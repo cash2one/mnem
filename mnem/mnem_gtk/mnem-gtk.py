@@ -22,6 +22,8 @@ from gi.repository import Pango
 
 import webbrowser
 
+import threading
+
 
 class ResultContainer(Gtk.HBox):
 
@@ -294,17 +296,10 @@ class MnemAppWindow(Gtk.Window):
         except KeyError:
             key = self.client.cfg.get('complete', 'default', fallback='google')
 
-        try:
-            comps = self.client.getCompletions(key, 'complete', query)
-        except:
-            raise
+        srch_thd = SearchRequestThread(self.client, key, 'complete', query, self.handle_results)
+        srch_thd.start()
 
-        if len(comps) == 0:
-            return
-
-        self.handle_completions(comps)
-
-    def handle_completions(self, comps):
+    def handle_results(self, comps):
 
         print(comps)
 
@@ -339,6 +334,26 @@ class MnemGtk(object):
 
         # enter the GUI loop
         self.window.start()
+
+class SearchRequestThread(threading.Thread):
+    '''
+    Thread to go off and execute a request, which might take some time
+    '''
+
+    def __init__(self, client, key, reqtype, query, handler, *args, **kwargs):
+        self.client = client
+        self.key = key
+        self.reqtype = reqtype
+        self.query = query
+        self.handler = handler
+
+        super(SearchRequestThread, self).__init__(*args, **kwargs)
+
+    def run(self):
+
+        res = self.client.getCompletions(self.key, self.reqtype, self.query)
+
+        self.handler(res)
 
 
 if __name__ == "__main__":
