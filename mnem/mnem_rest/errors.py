@@ -8,17 +8,19 @@ ERRORS = {
     'internal': 1,
     'mnemory-not-found': 2,
     'request-type-not-found': 3,
-    'locale-not-found': 4
+    'locale-not-found': 4,
+    'request-failed': 5
 }
 
 ERROR_STR = {
     'internal': "Internal error",
     'mnemory-not-found': "Mnemory not found",
     'request-type-not-found': "Request type not found",
-    'locale-not-found': "Locale not found for mnemory"
+    'locale-not-found': "Locale not found for mnemory",
+    'request-failed': "The request failed - perhaps an API has changed, or there is a network issue"
 }
 
-def constructError(errKey, context):
+def constructError(errKey, context=None):
     """
     Constructs a general error. Has at least the error code and
     description string, with an optional context if you have

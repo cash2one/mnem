@@ -8,7 +8,7 @@ from mnem import request_data, request_loader
 from mnem.mnem import MnemError
 
 
-class RequestDataError(MnemError):
+class RequestDataParseError(MnemError):
     '''
     Exception thrown when returned data cannot be parsed into meaninfuul results
     '''

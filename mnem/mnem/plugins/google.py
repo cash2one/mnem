@@ -139,7 +139,7 @@ class _GTrendComp(request_provider.SimpleUrlDataCompletion):
         try:
             res = [parseResult(x) for x in data['entityList']]
         except Exception as e:
-            raise request_provider.RequestDataError(self, data, e)
+            raise request_provider.RequestDataParseError(self, data, e)
 
         return res
 

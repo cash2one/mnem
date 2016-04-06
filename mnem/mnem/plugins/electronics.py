@@ -74,7 +74,12 @@ class _MouserComplete(request_provider.SimpleUrlDataCompletion):
 
         uidUrl = self.base + "/Search/Refine.aspx?N=%s"
 
-        data = loads(data)
+        print(data)
+
+        try:
+            data = loads(data)
+        except ValueError as e:
+            raise request_provider.RequestDataParseError(self, data, e)
 
         cs = [parse(e) for e in data]
         return cs

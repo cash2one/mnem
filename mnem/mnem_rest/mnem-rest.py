@@ -2,7 +2,7 @@
 
 import argparse
 
-from mnem import mnem, mnemory
+from mnem import mnem, mnemory, request_loader, request_provider
 from mnem_rest import errors
 
 from flask import Flask, jsonify
@@ -64,7 +64,11 @@ class MnemorySearchAPI(Resource):
             return errors.constructError('request-type-not-found',
                                          {'type': type})
 
-        res = mnemory.getRequestData(type, {'query': query})
+        try:
+            res = mnemory.getRequestData(type, {'query': query})
+        except (request_loader.RequestDataLoadError,
+                request_provider.RequestDataParseError):
+            return errors.constructError('request-failed')
 
         return res.getData()
 

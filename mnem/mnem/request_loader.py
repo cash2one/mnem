@@ -51,7 +51,10 @@ class UrlCompletionDataLoader(RequestDataLoader):
         '''
 
         try:
-            data = requests.get(self.pattern % quote(query), timeout=5)
+            ua = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:20.0) Gecko/20100101 Firefox/20.0'
+            headers = {'User-Agent': ua}
+
+            data = requests.get(self.pattern % quote(query), headers=headers, timeout=5)
             data.close()
         except Exception as e:
             raise RequestDataLoadError(self, self.pattern, query, exception=e)
