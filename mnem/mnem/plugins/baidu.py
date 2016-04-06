@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory, data_utils
+from mnem import mnemory, data_utils, request_provider
 
 import json
 
@@ -15,7 +15,7 @@ class BaiduSearch(mnemory.SearchMnemory):
     def getBaseUrl(self):
         return self.base
 
-class _BdComp(mnemory.SimpleUrlDataCompletion):
+class _BdComp(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self):
         completionPat = "http://suggestion.baidu.com/su?wd=%s&json=1"
@@ -40,12 +40,12 @@ class BaiduWebSearch(BaiduSearch):
 
         s_url = self.base + "/s?wd=%s"
 
-        search = mnemory.UrlInterpolationProvider(s_url)
+        search = request_provider.UrlInterpolationProvider(s_url)
         comp = _BdComp()
 
         self._add_basic_search_complete(search, comp)
 
-class _BdImgComp(mnemory.SimpleUrlDataCompletion):
+class _BdImgComp(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self):
         pat = "http://nssug.baidu.com/su?wd=%s&prod=image"
@@ -70,7 +70,7 @@ class BaiduImageSearch(BaiduSearch):
 
         s_url = "http://image.baidu.com/search/index?tn=baiduimage&word=%s"
 
-        search = mnemory.UrlInterpolationProvider(s_url)
+        search = request_provider.UrlInterpolationProvider(s_url)
         comp = _BdImgComp()
 
         self._add_basic_search_complete(search, comp)

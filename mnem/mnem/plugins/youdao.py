@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory
+from mnem import mnemory, request_provider
 
 from urllib.parse import unquote
 
-class _Completion(mnemory.SimpleUrlDataCompletion):
+class _Completion(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self):
         url = "http://dsuggest.ydstatic.com/suggest/suggest.s?query=%s"
@@ -36,7 +36,7 @@ class YouDaoDictSearch(mnemory.SearchMnemory):
 
         search_url = self.base + '/search?q=%s&keyfrom=dict.index'
 
-        search = mnemory.UrlInterpolationProvider(search_url)
+        search = request_provider.UrlInterpolationProvider(search_url)
         comp = _Completion()
 
         self._add_basic_search_complete(search, comp)

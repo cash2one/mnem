@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory
+from mnem import mnemory, request_provider
 
 from json import loads
 
-class _Completion(mnemory.SimpleUrlDataCompletion):
+class _Completion(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self):
         url = WolframAlphaSearch.base + "/input/autocomplete.jsp?qr=0&i=%s"
@@ -31,7 +31,7 @@ class WolframAlphaSearch(mnemory.SearchMnemory):
 
         search_url = self.base + "/input/?i=%s"
 
-        search = mnemory.UrlInterpolationProvider(search_url)
+        search = request_provider.UrlInterpolationProvider(search_url)
         comp = _Completion()
 
         self._add_basic_search_complete(search, comp)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory
+from mnem import mnemory, request_provider
 
 from json import loads
 
@@ -14,7 +14,7 @@ class YahooSearch(mnemory.SearchMnemory):
     def getBaseUrl(self):
         return self.base
 
-class _Completion(mnemory.SimpleUrlDataCompletion):
+class _Completion(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self):
         url = "https://search.yahoo.com/sugg/gossip/gossip-us-ura/?output=sd1&command=%s"
@@ -41,7 +41,7 @@ class YahooWebSearch(YahooSearch):
     def __init__(self, locale):
         super(YahooWebSearch, self).__init__(locale)
 
-        search = mnemory.UrlInterpolationProvider(self.base + "/search?p=%s")
+        search = request_provider.UrlInterpolationProvider(self.base + "/search?p=%s")
         comp = _Completion()
 
         self._add_basic_search_complete(search, comp)

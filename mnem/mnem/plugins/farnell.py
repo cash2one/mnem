@@ -4,11 +4,11 @@ Created on 3 Apr 2016
 @author: John Beard
 '''
 
-from mnem import mnemory, locale
+from mnem import mnemory, locale, request_provider
 
 from lxml.html import fromstring
 
-class _FarnellComp(mnemory.SimpleUrlDataCompletion):
+class _FarnellComp(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self, base):
         url = base + "/webapp/wcs/stores/servlet/AjaxSearchLookAhead?searchTerm=%s"
@@ -83,11 +83,11 @@ class FarnellSearch(mnemory.SearchMnemory):
     def __init__(self, loc):
         super().__init__(loc)
 
-        main_search = mnemory.UrlInterpolationProvider(self.getBaseUrl() + "/Search?st=%s")
+        main_search = request_provider.UrlInterpolationProvider(self.getBaseUrl() + "/Search?st=%s")
         comp = _FarnellComp(self.getBaseUrl())
         comp.set_url_provider(main_search)
 
-        manf_cat_search = mnemory.UrlInterpolationProvider(self.getBaseUrl() + "/%s")
+        manf_cat_search = request_provider.UrlInterpolationProvider(self.getBaseUrl() + "/%s")
 
         self.providers = {
                 self.R_DEF_COMPLETE: comp,

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory, locale
+from mnem import mnemory, locale, request_provider
 
 from json import loads
 
-class _Completion(mnemory.SimpleUrlDataCompletion):
+class _Completion(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self, base, loc):
 
@@ -43,7 +43,7 @@ class AmazonSearch(mnemory.SearchMnemory):
 
         s_url = "http://" + self.base + "/s/?field-keywords=%s"
 
-        search = mnemory.UrlInterpolationProvider(s_url)
+        search = request_provider.UrlInterpolationProvider(s_url)
         comp = _Completion(self.base, loc)
 
         self._add_basic_search_complete(search, comp)

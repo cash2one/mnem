@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory, completion, locale
+from mnem import mnemory, locale, request_provider
 from json import loads
 
 import codecs
@@ -15,7 +15,7 @@ class GoogleMnemory(mnemory.SearchMnemory):
     def defaultLocale(self):
         return "us"
 
-class _GoogleWebCompletion(mnemory.SimpleUrlDataCompletion):
+class _GoogleWebCompletion(request_provider.SimpleUrlDataCompletion):
 
     def __init_(self, base):
         url = base + "/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=%s"
@@ -36,14 +36,14 @@ class GoogleSearch(GoogleMnemory):
 
         sch_pat = self.base + "/search?q=%s"
 
-        search = mnemory.UrlInterpolationProvider(sch_pat)
+        search = request_provider.UrlInterpolationProvider(sch_pat)
         comp = _GoogleWebCompletion(self.base)
 
         self._add_basic_search_complete(search, comp)
 
         super().__init__(loc)
 
-class _GImgComp(mnemory.SimpleUrlDataCompletion):
+class _GImgComp(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self, base, loc):
         url = base + "/complete/search?client=img&hl=%s&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%%s" % locale.langForLocale(loc)
@@ -71,7 +71,7 @@ class GoogleImageSearch(GoogleMnemory):
 
         sch_pat = self.base + "/search?tbm=isch&q=%s"
 
-        search = mnemory.UrlInterpolationProvider(sch_pat)
+        search = request_provider.UrlInterpolationProvider(sch_pat)
         comp = _GImgComp(self.base, loc)
 
         self._add_basic_search_complete(search, comp)
@@ -81,7 +81,7 @@ class GoogleImageSearch(GoogleMnemory):
     def getBaseUrl(self):
         return self.base + "/imghp"
 
-class _GFinComp(mnemory.SimpleUrlDataCompletion):
+class _GFinComp(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self, base):
         url = base + "/match?matchtype=matchall&q=%s"
@@ -110,7 +110,7 @@ class GoogleFinanceSearch(GoogleMnemory):
 
         sch_pat = self.base + "?q=%s"
 
-        search = mnemory.UrlInterpolationProvider(sch_pat)
+        search = request_provider.UrlInterpolationProvider(sch_pat)
         comp = _GFinComp(self.base)
 
         self._add_basic_search_complete(search, comp)
@@ -120,7 +120,7 @@ class GoogleFinanceSearch(GoogleMnemory):
     def getBaseUrl(self):
         return self.base
 
-class _GTrendComp(mnemory.SimpleUrlDataCompletion):
+class _GTrendComp(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self, base):
         url = base + "/entitiesQuery?tn=10&q=%s"
@@ -139,7 +139,7 @@ class _GTrendComp(mnemory.SimpleUrlDataCompletion):
         try:
             res = [parseResult(x) for x in data['entityList']]
         except Exception as e:
-            raise completion.CompletionParseError(self, data, e)
+            raise request_provider.RequestDataError(self, data, e)
 
         return res
 
@@ -153,7 +153,7 @@ class GoogleTrendsSearch(GoogleMnemory):
 
         sch_pat = self.base + "/explore#q=%s"
 
-        search = mnemory.UrlInterpolationProvider(sch_pat)
+        search = request_provider.UrlInterpolationProvider(sch_pat)
         comp = _GTrendComp(self.base)
 
         self._add_basic_search_complete(search, comp)
@@ -169,13 +169,13 @@ class GoogleScholarSearch(GoogleMnemory):
         self.base = "https://www.scholar.google." + locale.tldForLocale(loc)
 
         sch_pat = self.base + "/scholar?q=%s"
-        search = mnemory.UrlInterpolationProvider(sch_pat)
+        search = request_provider.UrlInterpolationProvider(sch_pat)
 
         self._add_basic_search_complete(search, None)
 
         super().__init__(loc)
 
-class _YoutubeComplete(mnemory.SimpleUrlDataCompletion):
+class _YoutubeComplete(request_provider.SimpleUrlDataCompletion):
 
     def __init(self):
         url = "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=%s"
@@ -200,7 +200,7 @@ class YoutubeSearch(mnemory.SearchMnemory):
 
         sch_pat = self.base + "/results?search_query=%s"
 
-        search = mnemory.UrlInterpolationProvider(sch_pat)
+        search = request_provider.UrlInterpolationProvider(sch_pat)
         comp = _YoutubeComplete()
 
         self._add_basic_search_complete(search, comp)

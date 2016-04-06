@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory
+from mnem import mnemory, request_provider
 
 from json import loads
 
-class _Completion(mnemory.SimpleUrlDataCompletion):
+class _Completion(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self, url):
         super(_Completion, self).__init__(url)
@@ -17,7 +17,7 @@ class _Completion(mnemory.SimpleUrlDataCompletion):
         cs = [mnemory.CompletionResult(x) for x in data[1]]
         return cs
 
-class _Search(mnemory.UrlInterpolationProvider):
+class _Search(request_provider.UrlInterpolationProvider):
 
     def _process_query(self, query):
         return query.replace(" ", "_")

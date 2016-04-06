@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory, locale
+from mnem import mnemory, locale, request_provider
 
 from json import loads
 
-class _OctopartComp(mnemory.SimpleUrlDataCompletion):
+class _OctopartComp(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self, base):
         self.base = base
@@ -53,12 +53,12 @@ class OctopartSearch(mnemory.SearchMnemory):
 
         search_url = self.base + "/search?q=%s"
 
-        search = mnemory.UrlInterpolationProvider(search_url)
+        search = request_provider.UrlInterpolationProvider(search_url)
         comp = _OctopartComp(self.base)
 
         self._add_basic_search_complete(search, comp)
 
-class _MouserComplete(mnemory.SimpleUrlDataCompletion):
+class _MouserComplete(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self, base):
         self.base = base
@@ -89,7 +89,7 @@ class MouserSearch(mnemory.SearchMnemory):
 
         search_url = self.getBaseUrl() + "/Search/Refine.aspx?Keyword=%s"
 
-        search = mnemory.UrlInterpolationProvider(search_url)
+        search = request_provider.UrlInterpolationProvider(search_url)
         comp = _MouserComplete(self.getBaseUrl())
 
         self._add_basic_search_complete(search, comp)

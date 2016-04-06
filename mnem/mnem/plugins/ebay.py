@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory, locale, data_utils
+from mnem import mnemory, locale, data_utils, request_provider
 import json
 
-class _Complete(mnemory.SimpleUrlDataCompletion):
+class _Complete(request_provider.SimpleUrlDataCompletion):
 
     def __init__(self, loc):
         if loc == "uk":
@@ -37,7 +37,7 @@ class EbaySearch(mnemory.SearchMnemory):
 
         search_url = self.base + "/sch/i.html?_nkw=%s"
 
-        search = mnemory.UrlInterpolationProvider(search_url)
+        search = request_provider.UrlInterpolationProvider(search_url)
         comp = _Complete(loc)
 
         self._add_basic_search_complete(search, comp)
