@@ -103,9 +103,15 @@ class MnemResultListModel(object):
     def confirm_entry(self):
 
         try:
-            self.results[self.focussed].perform_main_action()
+            self.perform_main_action(self.results[self.focussed])
         except IndexError:
             pass
+
+
+    def perform_main_action(self, res):
+
+        if res['url']:
+            webbrowser.open(res['url'], new=2, autoraise=True)
 
     def select_next(self):
 
@@ -177,11 +183,6 @@ class ResultContainer(Gtk.HBox):
             self.selected_listener.keyword_selected(self.keyword)
         else:
             self.get_style_context().remove_class(Gtk.STYLE_CLASS_HIGHLIGHT)
-
-    def perform_main_action(self):
-
-        if self.url:
-            webbrowser.open(self.url, new=2, autoraise=True)
 
 
 class ResultListBox(object):
@@ -358,18 +359,21 @@ class MnemAppWindow(Gtk.Window):
 
         # TODO
         key_map = {
-            "g": "google",
-            "a": "amazon",
-            "f": "farnell",
-            "b": "baidu",
+            "g": ("google", 'uk'),
+            "a": ("amazon", 'uk'),
+            "f": ("farnell", 'uk'),
+            "(": ("baidu", None),
+            "yd": ("youdao", None),
+            "w": ("wikipedia", 'en')
         }
 
         try:
-            key = key_map[key]
+            key, locale = key_map[key]
         except KeyError:
             key = self.client.cfg.get('complete', 'default', fallback='google')
+            locale = None
 
-        srch_thd = SearchRequestThread(self.client, key, 'complete', query, self.handle_results)
+        srch_thd = SearchRequestThread(self.client, key, locale, 'complete', query, self.handle_results)
         srch_thd.start()
 
     def handle_results(self, comps):
@@ -408,9 +412,10 @@ class SearchRequestThread(threading.Thread):
     Thread to go off and execute a request, which might take some time
     '''
 
-    def __init__(self, client, key, reqtype, query, handler, *args, **kwargs):
+    def __init__(self, client, key, locale, reqtype, query, handler, *args, **kwargs):
         self.client = client
         self.key = key
+        self.locale = locale
         self.reqtype = reqtype
         self.query = query
         self.handler = handler
@@ -419,9 +424,8 @@ class SearchRequestThread(threading.Thread):
 
     def run(self):
 
-        # res = self.client.getCompletions(self.key, self.reqtype, self.query)
-
-        res = {'completions': [{'url': 'https://yahoo.com/search?p=dictionary', 'keyword': 'dictionary'}, {'url': 'https://yahoo.com/search?p=domino%27s%20pizza', 'keyword': "domino's pizza"}, {'url': 'https://yahoo.com/search?p=discover%20card%20login', 'keyword': 'discover card login'}, {'url': 'https://yahoo.com/search?p=drudge%20report%202016', 'keyword': 'drudge report 2016'}, {'url': 'https://yahoo.com/search?p=delta', 'keyword': 'delta'}, {'url': 'https://yahoo.com/search?p=directv', 'keyword': 'directv'}, {'url': 'https://yahoo.com/search?p=driving%20directions', 'keyword': 'driving directions'}, {'url': 'https://yahoo.com/search?p=dish%20network', 'keyword': 'dish network'}, {'url': 'https://yahoo.com/search?p=dmv', 'keyword': 'dmv'}, {'url': 'https://yahoo.com/search?p=drudge%20report', 'keyword': 'drudge report'}]}
+        res = self.client.getCompletions(self.key, self.locale, self.reqtype, self.query)
+        # res = {'completions': [{'url': 'https://yahoo.com/search?p=dictionary', 'keyword': 'dictionary'}, {'url': 'https://yahoo.com/search?p=domino%27s%20pizza', 'keyword': "domino's pizza"}, {'url': 'https://yahoo.com/search?p=discover%20card%20login', 'keyword': 'discover card login'}, {'url': 'https://yahoo.com/search?p=drudge%20report%202016', 'keyword': 'drudge report 2016'}, {'url': 'https://yahoo.com/search?p=delta', 'keyword': 'delta'}, {'url': 'https://yahoo.com/search?p=directv', 'keyword': 'directv'}, {'url': 'https://yahoo.com/search?p=driving%20directions', 'keyword': 'driving directions'}, {'url': 'https://yahoo.com/search?p=dish%20network', 'keyword': 'dish network'}, {'url': 'https://yahoo.com/search?p=dmv', 'keyword': 'dmv'}, {'url': 'https://yahoo.com/search?p=drudge%20report', 'keyword': 'drudge report'}]}
 
         self.handler(res)
 

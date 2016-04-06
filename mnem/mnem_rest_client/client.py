@@ -25,13 +25,18 @@ class MnemRestClient(object):
 
         print("Connecting: %s" % self.url)
 
-    def getCompletions(self, engineKey, completion_type, query):
+    def getCompletions(self, engineKey, locale, completion_type, query):
 
         # choose the end point
+        url = '%s/search/%s' % (self.url, engineKey)
+
+        if locale:
+            url += '/%s' % locale
+
         if completion_type:
-            url = self.url + "/search/%s/type/%s/query/%s" % (engineKey, completion_type, query);
-        else:
-            url = self.url + "/search/%s/query/%s" % (engineKey, query);
+            url += "/type/%s" % completion_type
+
+        url += "/query/%s" % (query);
 
         d = requests.get(url)
 
