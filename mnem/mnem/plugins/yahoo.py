@@ -9,10 +9,14 @@ class YahooSearch(mnemory.SearchMnemory):
 
     def __init__(self, locale):
         mnemory.SearchMnemory.__init__(self, locale)
-        self.base = "https://yahoo.com"
+        self.domain = 'yahoo.com'
+        self.base = "https://" + self.domain
 
     def getBaseUrl(self):
         return self.base
+
+    def get_subdomain(self, subdom):
+        return 'https://' + subdom + '.' + self.domain
 
 class _Completion(request_provider.SimpleUrlDataCompletion):
 
@@ -41,7 +45,8 @@ class YahooWebSearch(YahooSearch):
     def __init__(self, locale):
         super(YahooWebSearch, self).__init__(locale)
 
-        search = request_provider.UrlInterpolationProvider(self.base + "/search?p=%s")
+        s_url = self.get_subdomain('search') + "/search?p=%s"
+        search = request_provider.UrlInterpolationProvider(s_url)
         comp = _Completion()
 
         self._add_basic_search_complete(search, comp)

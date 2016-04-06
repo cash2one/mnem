@@ -85,7 +85,6 @@ class FarnellSearch(mnemory.SearchMnemory):
 
         main_search = request_provider.UrlInterpolationProvider(self.getBaseUrl() + "/Search?st=%s")
         comp = _FarnellComp(self.getBaseUrl())
-        comp.set_url_provider(main_search)
 
         manf_cat_search = request_provider.UrlInterpolationProvider(self.getBaseUrl() + "/%s")
 
