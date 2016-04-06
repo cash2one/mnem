@@ -1,6 +1,7 @@
 from yapsy.IPlugin import IPlugin
 
 from mnem import completion, request_data
+from mnem.request_provider import UrlInterpolationProvider
 
 class MnemPlugin(IPlugin):
 
@@ -147,6 +148,10 @@ class SearchMnemory(Mnemory):
         '''
 
         self.providers = {}
+
+        # convert if we only got a string
+        if isinstance(search_prov, str):
+            search_prov = UrlInterpolationProvider(search_prov)
 
         if search_prov:
             self.providers[self.R_DEF_SEARCH] = search_prov
