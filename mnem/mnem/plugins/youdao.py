@@ -34,7 +34,7 @@ class YouDaoDictSearch(mnemory.SearchMnemory):
 
         self.base = "https://dict.youdao.com"
 
-        search_url = self.base + '/search?q=%s&keyfrom=dict.index'
+        search_url = self.base + '/search?keyfrom=dict.index&q=%s'
 
         search = request_provider.UrlInterpolationProvider(search_url)
         comp = _Completion()
