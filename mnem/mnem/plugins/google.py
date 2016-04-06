@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory
-
-from mnem import completion
-from mnem.completion import UrlCompletionDataLoader as UCL
+from mnem import mnemory, completion, locale
 from json import loads
 
 import codecs
@@ -18,63 +15,41 @@ class GoogleMnemory(mnemory.SearchMnemory):
     def defaultLocale(self):
         return "us"
 
-    def availableCompletions(self):
-        # google mnemories normally provide at least one "default"
-        # completion
-        return [self.R_DEF_COMPLETE]
+class _GoogleWebCompletion(mnemory.SimpleUrlDataCompletion):
 
-    def _getSearchLoader(self, req_type):
-        '''
-        Most google searches provide a completer of this form
-        '''
+    def __init_(self, base):
+        url = base + "/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=%s"
+        super().__init_(url)
 
-        if req_type == self.R_DEF_COMPLETE:
-            return UCL(self._comp_pat)
+    def _get_completions(self, data):
 
-    def _getRequestData(self, rtype, opts, data):
-        '''
-        Simple handler for many of the google searches
-        '''
-        if rtype == self.R_DEF_SEARCH:
-            return mnemory.getSimpleUrlDataQuoted(opts, self._sch_pat)
-        elif rtype == self.R_DEF_COMPLETE:
-            cs = self._getCompletions(data)
-            return mnemory.request_data.CompletionReqData(cs)
+        data = loads(data)
+        return [mnemory.CompletionResult(x) for x in data[1]]
 
 class GoogleSearch(GoogleMnemory):
 
     key = "com.google.websearch"
     defaultAlias = "google"
 
-    def __init__(self, locale=None):
-        self.base = "https://www.google." + self.tldForLocale(locale)
-        self._sch_pat = self.base + "/search?q=%s"
-        self._comp_pat = self.base + "/complete/search?client=chrome-omni&gs_ri=chrome-ext&oit=1&cp=1&pgcl=7&q=%s"
+    def __init__(self, loc=None):
+        self.base = "https://www.google." + locale.tldForLocale(loc)
 
-        mnemory.SearchMnemory.__init__(self, locale)
+        sch_pat = self.base + "/search?q=%s"
 
-    def _getCompletions(self, data):
+        search = mnemory.UrlInterpolationProvider(sch_pat)
+        comp = _GoogleWebCompletion(self.base)
 
-        data = loads(data)
-        return [mnemory.CompletionResult(x) for x in data[1]]
+        self._add_basic_search_complete(search, comp)
 
-class GoogleImageSearch(GoogleMnemory):
+        super().__init__(loc)
 
-    key = "com.google.image"
-    defaultAlias = "google-image"
+class _GImgComp(mnemory.SimpleUrlDataCompletion):
 
-    def __init__(self, locale=None):
-        self.base = "https://www.google." + self.tldForLocale(locale)
+    def __init__(self, base, loc):
+        url = base + "/complete/search?client=img&hl=%s&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%%s" % locale.langForLocale(loc)
+        super().__init__(url)
 
-        self._sch_pat = self.base + "/search?tbm=isch&q=%s"
-        self._comp_pat = self.base + "/complete/search?client=img&hl=%s&gs_rn=43&gs_ri=img&ds=i&cp=1&gs_id=8&q=%%s" % self.langForLocale(locale)
-
-        mnemory.SearchMnemory.__init__(self, locale)
-
-    def getBaseUrl(self):
-        return self.base + "/imghp"
-
-    def _getCompletions(self, data):
+    def _get_completions(self, data):
 
         def process(res):
             res = html.unescape(res.replace("<b>", "").replace("</b>", ""))
@@ -86,23 +61,33 @@ class GoogleImageSearch(GoogleMnemory):
 
         return [process(x[0]) for x in data[1]]
 
-class GoogleFinanceSearch(GoogleMnemory):
+class GoogleImageSearch(GoogleMnemory):
 
-    key = "com.google.finance"
-    defaultAlias = "google-finance"
+    key = "com.google.image"
+    defaultAlias = "google-image"
 
-    def __init__(self, locale=None):
-        self.base = "https://www.google." + self.tldForLocale(locale) + "/finance"
+    def __init__(self, loc=None):
+        self.base = "https://www.google." + locale.tldForLocale(loc)
 
-        self._sch_pat = self.base + "?q=%s"
-        self._comp_pat = self.base + "/match?matchtype=matchall&q=%s"
+        sch_pat = self.base + "/search?tbm=isch&q=%s"
 
-        mnemory.SearchMnemory.__init__(self, locale)
+        search = mnemory.UrlInterpolationProvider(sch_pat)
+        comp = _GImgComp(self.base, loc)
+
+        self._add_basic_search_complete(search, comp)
+
+        super().__init__(loc)
 
     def getBaseUrl(self):
-        return self.base
+        return self.base + "/imghp"
 
-    def _getCompletions(self, data):
+class _GFinComp(mnemory.SimpleUrlDataCompletion):
+
+    def __init__(self, base):
+        url = base + "/match?matchtype=matchall&q=%s"
+        super().__init__(url)
+
+    def _get_completions(self, data):
 
         data = loads(data)['matches']
 
@@ -115,20 +100,33 @@ class GoogleFinanceSearch(GoogleMnemory):
 
         return [parse(x) for x in data]
 
-class GoogleTrendsSearch(GoogleMnemory):
+class GoogleFinanceSearch(GoogleMnemory):
 
-    key = "com.google.trends"
-    defaultAlias = "google-trends"
+    key = "com.google.finance"
+    defaultAlias = "google-finance"
 
-    def __init__(self, locale=None):
-        self.base = "https://www.google." + self.tldForLocale(locale) + "/trends"
+    def __init__(self, loc=None):
+        self.base = "https://www.google." + locale.tldForLocale(loc) + "/finance"
 
-        self._sch_pat = self.base + "/explore#q=%s"
-        self._comp_pat = self.base + "/entitiesQuery?tn=10&q=%s"
+        sch_pat = self.base + "?q=%s"
 
-        mnemory.SearchMnemory.__init__(self, locale)
+        search = mnemory.UrlInterpolationProvider(sch_pat)
+        comp = _GFinComp(self.base)
 
-    def _getCompletions(self, data):
+        self._add_basic_search_complete(search, comp)
+
+        super().__init__(loc)
+
+    def getBaseUrl(self):
+        return self.base
+
+class _GTrendComp(mnemory.SimpleUrlDataCompletion):
+
+    def __init__(self, base):
+        url = base + "/entitiesQuery?tn=10&q=%s"
+        super().__init__(url)
+
+    def _get_completions(self, data):
 
         def parseResult(e):
             res = mnemory.CompletionResult(e['title'],
@@ -145,58 +143,69 @@ class GoogleTrendsSearch(GoogleMnemory):
 
         return res
 
+class GoogleTrendsSearch(GoogleMnemory):
+
+    key = "com.google.trends"
+    defaultAlias = "google-trends"
+
+    def __init__(self, loc=None):
+        self.base = "https://www.google." + locale.tldForLocale(loc) + "/trends"
+
+        sch_pat = self.base + "/explore#q=%s"
+
+        search = mnemory.UrlInterpolationProvider(sch_pat)
+        comp = _GTrendComp(self.base)
+
+        self._add_basic_search_complete(search, comp)
+
+        super().__init__(loc)
+
 class GoogleScholarSearch(GoogleMnemory):
 
     key = "com.google.scholar"
     defaultAlias = "google-scholar"
 
-    def __init__(self, locale=None):
-        self.base = "https://www.scholar.google." + self.tldForLocale(locale)
-        mnemory.SearchMnemory.__init__(self, locale)
+    def __init__(self, loc=None):
+        self.base = "https://www.scholar.google." + locale.tldForLocale(loc)
 
-    def _getRequestData(self, rtype, opts, data):
+        sch_pat = self.base + "/scholar?q=%s"
+        search = mnemory.UrlInterpolationProvider(sch_pat)
 
-        if rtype == self.R_DEF_SEARCH:
-            url = self.base + "/scholar?q=%s"
-            return mnemory.getSimpleUrlDataQuoted(opts, url)
+        self._add_basic_search_complete(search, None)
 
-    def availableCompletions(self):
-        """Scholar doesn't have completions
-        """
-        return []
+        super().__init__(loc)
+
+class _YoutubeComplete(mnemory.SimpleUrlDataCompletion):
+
+    def __init(self):
+        url = "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=%s"
+        super().__init(url)
+
+    def _get_completions(self, data):
+
+        data = self.stripJsonp(data)
+        result = loads(data)
+
+        return [mnemory.CompletionResult(c[0]) for c in result[1]]
 
 class YoutubeSearch(mnemory.SearchMnemory):
 
     key = "com.youtube.search"
     defaultAlias = "youtube"
 
-    def __init__(self, locale=None):
-        mnemory.SearchMnemory.__init__(self, locale)
+    def __init__(self, loc=None):
+        mnemory.SearchMnemory.__init__(self, loc)
 
         self.base = "http://youtube.com"
 
-    def availableCompletions(self):
-        return [self.R_DEF_COMPLETE]
+        sch_pat = self.base + "/results?search_query=%s"
 
-    def _getSearchLoader(self, req_type):
-        if req_type == self.R_DEF_COMPLETE:
-            url = "https://clients1.google.com/complete/search?client=youtube&hl=en&gl=us&gs_rn=23&gs_ri=youtube&ds=yt&cp=2&gs_id=d&q=%s"
-            return UCL(url)
+        search = mnemory.UrlInterpolationProvider(sch_pat)
+        comp = _YoutubeComplete()
 
-    def _getRequestData(self, rtype, opts, data):
-        if rtype == self.R_DEF_SEARCH:
-            url = self.base + "/results?search_query=%s"
-            return mnemory.getSimpleUrlDataQuoted(opts, url)
-        else:
-            cs = self._getCompletions(data)
-            return mnemory.request_data.CompletionReqData(cs)
+        self._add_basic_search_complete(search, comp)
 
-    def _getCompletions(self, data):
-
-        data = self.stripJsonp(data)
-        result = loads(data)
-
-        return [mnemory.CompletionResult(c[0]) for c in result[1]]
+        super().__init__(loc)
 
 class Google(mnemory.MnemPlugin):
 

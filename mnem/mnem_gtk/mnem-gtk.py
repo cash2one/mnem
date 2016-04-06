@@ -55,7 +55,7 @@ class MnemEntryBox(object):
             'changed', self.search_changed)
 
         self.box.pack_start(
-            self.main_input, expand=False, fill=False, padding=0)
+            self.main_input, expand=True, fill=True, padding=0)
 
     def changed(self):
         '''
@@ -173,10 +173,10 @@ class ResultContainer(Gtk.HBox):
     def select(self, selected):
 
         if selected:
-            self.get_style_context().add_class("selected")
+            self.get_style_context().add_class(Gtk.STYLE_CLASS_HIGHLIGHT)
             self.selected_listener.keyword_selected(self.keyword)
         else:
-            self.get_style_context().remove_class("selected")
+            self.get_style_context().remove_class(Gtk.STYLE_CLASS_HIGHLIGHT)
 
     def perform_main_action(self):
 

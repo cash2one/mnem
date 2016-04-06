@@ -4,90 +4,20 @@ Created on 3 Apr 2016
 @author: John Beard
 '''
 
-from mnem import mnemory, request_data
+from mnem import mnemory, locale
 
 from lxml.html import fromstring
-from urllib.parse import quote
 
-class UrlLoaderWithMinLength(mnemory.completion.UrlCompletionDataLoader):
+class _FarnellComp(mnemory.SimpleUrlDataCompletion):
 
-    def __init__(self, minlen, *args, **kwargs):
-        self.minlen = minlen
-        super(UrlLoaderWithMinLength, self).__init__(*args, **kwargs)
+    def __init__(self, base):
+        url = base + "/webapp/wcs/stores/servlet/AjaxSearchLookAhead?searchTerm=%s"
+        super().__init__(url)
 
-    def load(self, query):
+    def _can_process_query(self, opts):
+        return len(opts['query']) > 2
 
-        if len(query) < self.minlen:
-            raise mnemory.RequestLoaderNullRequest(query)
-
-        return super(UrlLoaderWithMinLength, self).load(query)
-
-class FarnellSearch(mnemory.SearchMnemory):
-
-    key = "com.farnell.search"
-    defaultAlias = "farnell"
-
-    R_PRODUCT = 'product'
-    R_MANUFACTURER = 'manufacturer'
-    R_CATEGORY = 'category'
-
-    def __init__(self, locale):
-        mnemory.SearchMnemory.__init__(self, locale)
-
-    def defaultLocale(self):
-        return "us"
-
-    def availableCompletions(self):
-        return [self.R_DEF_COMPLETE]
-
-    def availableRequests(self):
-        return [
-            self.R_PRODUCT,
-            self.R_CATEGORY,
-            self.R_MANUFACTURER
-        ]
-
-    def getBaseUrl(self):
-
-        if self.locale == "us":
-            return "https://www.newark.com"
-
-        return "http://" + self.domainForLocale(self.locale) + ".farnell.com"
-
-    def _getSearchLoader(self, req_type):
-
-        if req_type == self.R_DEF_COMPLETE:
-            api = self.getBaseUrl() + "/webapp/wcs/stores/servlet/AjaxSearchLookAhead?searchTerm=%s"
-            return UrlLoaderWithMinLength(3, api)
-
-    def _getRequestData(self, req_type, options, data):
-
-        if req_type == self.R_DEF_COMPLETE:
-            cs = self._getCompletions(data)
-            return mnemory.request_data.CompletionReqData(cs)
-        else:
-            return self._urlData(req_type, options)
-
-    def _urlData(self, req_type, options):
-
-        try:
-            query = options['query']
-        except KeyError:
-            # nneds a real exception
-            raise ValueError("Expected a 'query' option: got %s" % options)
-
-        if req_type in [self.R_CATEGORY, self.R_MANUFACTURER]:
-            url = self.getBaseUrl() + "/" + query
-        elif req_type == self.R_PRODUCT:
-            url = self.getBaseUrl() + "/Search?st=%s" % quote(query)
-        else:
-            # make this a specific error
-            raise ValueError("Unknown request type: %s" % req_type)
-
-        return request_data.PlainUrlReqData(query, url)
-
-    def _getCompletions(self, data):
-
+    def _get_completions(self, data):
         cs = []
 
         root = fromstring(data)
@@ -101,9 +31,9 @@ class FarnellSearch(mnemory.SearchMnemory):
             if listE.tag == 'ul':
 
                 if "Categor" in title:
-                    req_type = self.R_CATEGORY
+                    req_type = FarnellSearch.R_CATEGORY
                 elif "Manufactur" in title:
-                    req_type = self.R_MANUFACTURER
+                    req_type = FarnellSearch.R_MANUFACTURER
                 else:
                     # what is this heading? something new and exciting, no
                     # doubt
@@ -137,9 +67,44 @@ class FarnellSearch(mnemory.SearchMnemory):
                     cs.append(mnemory.CompletionResult(name, url=url,
                                                            category=title,
                                                            description=desc,
-                                                           req_type=self.R_PRODUCT))
+                                                           req_type=FarnellSearch.R_PRODUCT))
 
         return cs
+
+class FarnellSearch(mnemory.SearchMnemory):
+
+    key = "com.farnell.search"
+    defaultAlias = "farnell"
+
+    R_PRODUCT = 'product'
+    R_MANUFACTURER = 'manufacturer'
+    R_CATEGORY = 'category'
+
+    def __init__(self, loc):
+        super().__init__(loc)
+
+        main_search = mnemory.UrlInterpolationProvider(self.getBaseUrl() + "/Search?st=%s")
+        comp = _FarnellComp(self.getBaseUrl())
+        comp.set_url_provider(main_search)
+
+        manf_cat_search = mnemory.UrlInterpolationProvider(self.getBaseUrl() + "/%s")
+
+        self.providers = {
+                self.R_DEF_COMPLETE: comp,
+                self.R_PRODUCT: main_search,
+                self.R_MANUFACTURER: manf_cat_search,
+                self.R_CATEGORY: manf_cat_search
+        }
+
+    def defaultLocale(self):
+        return "us"
+
+    def getBaseUrl(self):
+
+        if self.locale == "us":
+            return "https://www.newark.com"
+
+        return "http://" + locale.domainForLocale(self.locale) + ".farnell.com"
 
 class FarnellPlugin(mnemory.MnemPlugin):
 

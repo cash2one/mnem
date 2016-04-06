@@ -1,50 +1,46 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory
+from mnem import mnemory, locale, data_utils
 import json
+
+class _Complete(mnemory.SimpleUrlDataCompletion):
+
+    def __init__(self, loc):
+        if loc == "uk":
+            sid = '3'
+        else:
+            sid = '0'
+
+        url = "http://autosug.ebaystatic.com/autosug?kwd=%s&sId=" + sid
+
+        super().__init__(url)
+
+    def _get_completions(self, result):
+
+        result = data_utils.stripJsonp(result)
+        result = json.loads(result)
+
+        cs = [mnemory.CompletionResult(c) for c in result['res']['sug']]
+
+        return cs
 
 class EbaySearch(mnemory.SearchMnemory):
 
     key = "com.ebay.search"
     defaultAlias = "ebay"
 
-    def __init__(self, locale):
-        mnemory.SearchMnemory.__init__(self, locale)
+    def __init__(self, loc):
+        mnemory.SearchMnemory.__init__(self, loc)
 
-        self.base = "http://ebay." + self.tldForLocale(self.locale)
+        self.base = "http://ebay." + locale.tldForLocale(loc)
 
-    def availableCompletions(self):
-        return [self.R_DEF_COMPLETE]
+        search_url = self.base + "/sch/i.html?_nkw=%s"
 
-    def _getSearchLoader(self, req_type):
+        search = mnemory.UrlInterpolationProvider(search_url)
+        comp = _Complete(loc)
 
-        if req_type == self.R_DEF_COMPLETE:
-            if self.locale == "uk":
-                sid = '3'
-            else:
-                sid = '0'
-
-            url = "http://autosug.ebaystatic.com/autosug?kwd=%s&sId=" + sid
-
-            return mnemory.completion.UrlCompletionDataLoader(url)
-
-    def _getRequestData(self, rtype, opts, data):
-
-        if rtype == self.R_DEF_SEARCH:
-            url = self.base + "/sch/i.html?_nkw=%s"
-            return mnemory.getSimpleUrlDataQuoted(opts, url)
-        else:
-            return self._getCompletions(data)
-
-    def _getCompletions(self, result):
-
-        result = self.stripJsonp(result)
-        result = json.loads(result)
-
-        cs = [mnemory.CompletionResult(c) for c in result['res']['sug']]
-
-        return mnemory.request_data.CompletionReqData(cs)
+        self._add_basic_search_complete(search, comp)
 
 class Ebay(mnemory.MnemPlugin):
 

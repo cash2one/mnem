@@ -1,6 +1,6 @@
 from yapsy.IPlugin import IPlugin
 
-from mnem import completion
+from mnem import completion, request_data
 
 class MnemPlugin(IPlugin):
 
@@ -52,6 +52,121 @@ class RequestLoaderNullRequest(Exception):
     def __str__(self):
         return self.failing_query
 
+class RequestProvider(object):
+
+    def execute_request(self, opts):
+
+        if not self._can_process_query(opts):
+            return None
+
+        data = self._load_data(opts)
+        return self._process_data(opts, data)
+
+    def _can_process_query(self, opts):
+        '''
+        Override if the provider can tell upfront if a query isn't suitable
+        '''
+        return True
+
+    def set_loader(self, loader):
+        '''
+        Override the default loader - allows the searh to be co-opted by
+        tests or maybe other searches to use the logic with a different
+        data source
+        
+        If not set, the search will provide its own loader
+        '''
+        self.loader = loader
+
+    def _load_data(self, opts):
+        '''
+        Load all the data needed to produce the result
+        
+        None is the default and is aceptable for requests that don't need to
+        load any external data
+        '''
+        try:
+            loader = self.loader
+        except AttributeError:
+            loader = None
+
+        if loader:
+            return loader.load(opts)
+
+        return None
+
+    def _process_data(self, opts, data):
+        raise NotImplementedError
+
+class UrlInterpolationProvider(RequestProvider):
+    '''
+    Provider that just interpolates queries into a string using %s as a placeholder
+    '''
+    def __init__(self, pattern):
+        self.pattern = pattern
+
+    def _process_query(self, query):
+        '''
+        Processing for a query before interpolating into the URL
+        
+        Default: don't mess with it
+        '''
+        return query
+
+    def _process_data(self, opts, data):
+        query = opts['query']
+
+        query = self._process_query(query)
+        url = self.pattern % query
+        return request_data.PlainUrlReqData(query, url)
+
+class InterpolatingUrlDataProvider(RequestProvider):
+    '''
+    Provider that downloads data from a URL with a simple url interpolation
+    and then prodces results based on that data
+    '''
+
+    def __init__(self, pattern):
+        self.loader = completion.UrlCompletionDataLoader(pattern)
+
+    def _load_data(self, opts):
+        return self.loader.load(opts['query'])
+
+    def _process_data(self, opts, data):
+        # this depends on the format of the returned data...
+        raise NotImplementedError
+
+class SimpleUrlDataCompletion(InterpolatingUrlDataProvider):
+    '''
+    Basic completion engine that downloads data from a URL and processes it
+    into completions
+    
+    Optionally, it can apply another search to each completion to generate
+    search urls for each one - you can do thois yourself or not at all if you
+    don't want to.
+    '''
+
+    def __init__(self, url, *args, **kwargs):
+        super(SimpleUrlDataCompletion, self).__init__(url, *args, **kwargs)
+        self.url_prov = None
+
+    def _get_completions(self, data):
+        raise NotImplementedError
+
+    def set_url_provider(self, prov):
+        self.url_prov = prov
+
+    def _process_data(self, opts, data):
+        cs = self._get_completions(data)
+
+        # if we can, generate the urls for the completions using the
+        # provided provider
+        if self.url_prov:
+            for c in cs:
+                c.url = self.url_prov.execute_request({'query': c.keyword}).getData()['uri']
+
+        return request_data.CompletionReqData(cs)
+
 class Mnemory:
 
     defaultAlias = ""
@@ -70,6 +185,8 @@ class SearchMnemory(Mnemory):
         if not locale:
             locale = self.defaultLocale()
 
+        self.loaders = {}
+
         Mnemory.__init__(self, locale)
 
     def defaultLocale(self):
@@ -79,74 +196,29 @@ class SearchMnemory(Mnemory):
         '''
         return None
 
-    @staticmethod
-    def tldForLocale(locale):
-        try:
-            tld = {
-                'uk': 'co.uk',
-                'fr': 'fr'
-            }[locale]
-        except KeyError:
-            tld = 'com'
-
-        return tld
-
-    @staticmethod
-    def langForLocale(locale):
-        try:
-            tld = {
-                'uk': 'en',
-                'fr': 'fr'
-            }[locale]
-        except KeyError:
-            tld = 'en'
-
-        return tld
-
-    @staticmethod
-    def domainForLocale(locale):
-
-        try:
-            domain = {
-                'uk': "uk",
-                'jp': "jp",
-                'aus': "au",
-            }[locale]
-        except KeyError:
-            domain = "us"
-
-        return domain
-
-    @staticmethod
-    def stringLongestBetween(s, l, r, keepEnds):
-        start, e = s.find(l), s.rfind(r)
-
-        if (keepEnds):
-            e = e + len(r)
-        else:
-            start = start + len(l)
-        return s[start: e]
-
-    @staticmethod
-    def stripJsonp(jsonp):
-        return SearchMnemory.stringLongestBetween(jsonp, "(", ")", False)
-
-    def availableCompletions(self):
-        """Return a list of available completion keys.
-        """
-        # default: doesn't provide any completions
-        return []
-
     def availableRequests(self):
         '''
-        Returns a list of requests
-        Default is to provide a single default request type (since it's
-        normal for a search engine to provide searches)
+        Returns a list of request type keys
+        
+        Default is to return all keys in a dict called providers, but you
+        can do this yourself if you have more complex logic
         
         If you override, the first item in this list is the default one for 
         this engine
         '''
-        return [self.R_DEF_SEARCH]
+        return [p for p in self.providers]
+
+    def availableCompletions(self):
+        """
+        Return a list of available completion keys. If there is a default-looking
+        completion provided, the default impl will provide it
+        """
+        comps = []
+
+        if self.R_DEF_COMPLETE in self.providers:
+            comps.append(self.R_DEF_COMPLETE)
+
+        return comps
 
     def getDefaultCompletion(self):
         """Returns the fairst available completion available
@@ -169,20 +241,23 @@ class SearchMnemory(Mnemory):
         the given options. Normally options is a dictionary, probably with
         a 'query' value at least
         '''
-        if not search_loader:
-            search_loader = self._getSearchLoader(req_type)
 
-        # load if needed TODO provide a null loader?
+        provider = self._get_provider(req_type, options)
+
         if search_loader:
+            provider.set_loader(search_loader)
 
-            try:
-                data = search_loader.load(options['query'])
-            except RequestLoaderNullRequest:
-                return None
-        else:
-            data = None
+        return provider.execute_request(options)
 
-        return self._getRequestData(req_type, options, data)
+    def _get_provider(self, req_type, opts):
+        '''
+        Gets the provider for a particular query type.
+        
+        Default is to look in a dictionary called self.providers, but you can
+        implement a different method if you like
+        '''
+
+        return self.providers[req_type]
 
     def getDefaultRequestType(self):
         '''
@@ -196,27 +271,23 @@ class SearchMnemory(Mnemory):
 
         return None
 
-    def _getSearchLoader(self, req_type):
+    def _add_basic_search_complete(self, search_prov, comp_prov):
         '''
-        Gets the default loader for the given search type
+        Inits self.providers with a basic URL search and a completer, with the
+        completer using the search for url generation if provided
         
-        Returns none if the request doesn't need to load data (eg a simple
-        string interpolator) - this is default
+        This is a very common basic set of searches, and can be added to, or
+        can just be ommitted if they dont apply
         '''
-        return None
 
-from mnem import request_data
-from urllib.parse import quote
+        self.providers = {}
 
-def getSimpleUrlData(url_pat, query):
-    url = url_pat % quote(query)
-    return request_data.PlainUrlReqData(query, url)
+        if search_prov:
+            self.providers[self.R_DEF_SEARCH] = search_prov
 
-def getSimpleUrlDataQuoted(opts, url_pat, key='query'):
+        if comp_prov:
 
-    try:
-        q = opts['query']
-    except KeyError:
-        raise KeyError
+            if search_prov:
+                comp_prov.set_url_provider(search_prov)
 
-    return getSimpleUrlData(url_pat, q)
+            self.providers[self.R_DEF_COMPLETE] = comp_prov

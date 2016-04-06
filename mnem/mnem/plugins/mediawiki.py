@@ -5,45 +5,46 @@ from mnem import mnemory
 
 from json import loads
 
+class _Completion(mnemory.SimpleUrlDataCompletion):
+
+    def __init__(self, url):
+        super(_Completion, self).__init__(url)
+
+    def _get_completions(self, data):
+
+        data = loads(data)
+
+        cs = [mnemory.CompletionResult(x) for x in data[1]]
+        return cs
+
+class _Search(mnemory.UrlInterpolationProvider):
+
+    def _process_query(self, query):
+        return query.replace(" ", "_")
+
 class MediaWikiMnemory(mnemory.SearchMnemory):
 
-    def __init__(self, wikibase, locale=None):
-        mnemory.SearchMnemory.__init__(self, locale)
+    def __init__(self, wikibase, loc=None):
+        mnemory.SearchMnemory.__init__(self, loc)
 
         if self.locale:
             self.base = "http://%s.%s" % (self.locale, wikibase)
         else:
             self.base = "http://%s" % (wikibase)
 
+        comp_pat = self.base + "/w/api.php?action=opensearch&format=json&search=%s"
+        search_url = self.base + "/wiki/%s";
+
+        search = _Search(search_url)
+        comp = _Completion(comp_pat)
+
+        self._add_basic_search_complete(search, comp)
+
     def defaultLocale(self):
         return "en"
 
-    def availableCompletions(self):
-        return [self.R_DEF_COMPLETE]
-
     def getBaseUrl(self):
         return self.base
-
-    def _getRequestData(self, rtype, opts, data):
-
-        if rtype == self.R_DEF_SEARCH:
-            return mnemory.getSimpleUrlData(self.base + "/wiki/%s",
-                                            opts['query'].replace(" ", "_"))
-        else:
-            return self._getCompletions(data)
-
-    def _getSearchLoader(self, req_type):
-        if req_type == self.R_DEF_COMPLETE:
-            url = self.base + "/w/api.php?action=opensearch&format=json&search=%s"
-            return mnemory.completion.UrlCompletionDataLoader(url)
-
-    def _getCompletions(self, data):
-
-        data = loads(data)
-
-        cs = [mnemory.CompletionResult(x) for x in data[1]]
-
-        return mnemory.request_data.CompletionReqData(cs)
 
 class WikipediaSearch(MediaWikiMnemory):
 

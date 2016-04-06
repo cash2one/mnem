@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory
+from mnem import mnemory, data_utils
 
 import json
 
@@ -12,74 +12,68 @@ class BaiduSearch(mnemory.SearchMnemory):
         mnemory.SearchMnemory.__init__(self, None)
         self.base = "https://baidu.com"
 
-    def availableCompletions(self):
-        return [self.R_DEF_COMPLETE]
-
-    def _getSearchLoader(self, req_type):
-        if req_type == self.R_DEF_COMPLETE:
-            return mnemory.completion.UrlCompletionDataLoader(self._completionPat)
-
     def getBaseUrl(self):
         return self.base
 
+class _BdComp(mnemory.SimpleUrlDataCompletion):
+
+    def __init__(self):
+        completionPat = "http://suggestion.baidu.com/su?wd=%s&json=1"
+        super().__init__(completionPat)
+
+    def _get_completions(self, data):
+
+        result = data_utils.stripJsonp(data)
+
+        t = json.loads(result)
+
+        cs = [mnemory.CompletionResult(c) for c in t['s']]
+        return cs
 
 class BaiduWebSearch(BaiduSearch):
 
     key = "com.baidu.websearch"
     defaultAlias = "baidu"
 
-    _completionPat = "http://suggestion.baidu.com/su?wd=%s&json=1"
-
     def __init__(self, locale=None):
-        BaiduSearch.__init__(self)
+        super().__init__()
 
-    def _getRequestData(self, rtype, opts, data):
+        s_url = self.base + "/s?wd=%s"
 
-        if rtype == self.R_DEF_SEARCH:
-            url = self.base + "/s?wd=%s"
-            return mnemory.getSimpleUrlDataQuoted(opts, url)
-        else:
-            return self._getCompletions(data)
+        search = mnemory.UrlInterpolationProvider(s_url)
+        comp = _BdComp()
 
-    def _getCompletions(self, result):
+        self._add_basic_search_complete(search, comp)
 
-        result = self.stripJsonp(result)
+class _BdImgComp(mnemory.SimpleUrlDataCompletion):
 
-        t = json.loads(result)
+    def __init__(self):
+        pat = "http://nssug.baidu.com/su?wd=%s&prod=image"
+        super().__init__(pat)
 
-        cs = [mnemory.CompletionResult(c) for c in t['s']]
+    def _get_completions(self, data):
 
-        return mnemory.request_data.CompletionReqData(cs)
+        # ugh, no quotes in the "JSON", just load the array
+        result = data_utils.stringLongestBetween(data, "[", "]", True)
+        result = json.loads(result)
 
+        cs = [mnemory.CompletionResult(c) for c in result]
+        return cs
 
 class BaiduImageSearch(BaiduSearch):
 
     key = "com.baidu.imagesearch"
     defaultAlias = "baidu-image"
 
-    _completionPat = "http://nssug.baidu.com/su?wd=%s&prod=image"
-
     def __init__(self, locale=None):
-        BaiduSearch.__init__(self)
+        super().__init__()
 
-    def _getRequestData(self, rtype, opts, data):
+        s_url = "http://image.baidu.com/search/index?tn=baiduimage&word=%s"
 
-        if rtype == self.R_DEF_SEARCH:
-            url = "http://image.baidu.com/search/index?tn=baiduimage&word=%s"
-            return mnemory.getSimpleUrlDataQuoted(opts, url)
-        else:
-            return self._getCompletions(data)
+        search = mnemory.UrlInterpolationProvider(s_url)
+        comp = _BdImgComp()
 
-    def _getCompletions(self, result):
-
-        # ugh, no quotes in the "JSON", jsut load the array
-        result = self.stringLongestBetween(result, "[", "]", True)
-        result = json.loads(result)
-
-        cs = [mnemory.CompletionResult(c) for c in result]
-
-        return mnemory.request_data.CompletionReqData(cs)
-
+        self._add_basic_search_complete(search, comp)
 
 class Baidu(mnemory.MnemPlugin):
 

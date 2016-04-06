@@ -1,61 +1,55 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from mnem import mnemory
+from mnem import mnemory, locale
 
 from json import loads
 
-class AmazonSearch(mnemory.SearchMnemory):
+class _Completion(mnemory.SimpleUrlDataCompletion):
 
-    key = "com.amazon.search"
-    defaultAlias = "amazon"
+    def __init__(self, base, loc):
 
-    def __init__(self, locale):
-        mnemory.SearchMnemory.__init__(self, locale)
+        mkts = {
+            'uk' : '3'
+        }
 
-        if self.locale:
-            self.base = "amazon." + self.tldForLocale(self.locale)
+        try:
+            mkt = mkts[loc]
+        except KeyError:
+            mkt = '1'
 
-    def defaultLocale(self):
-        return "uk"
+        url = "https://completion." + base + "/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=" + mkt + "&q=%s"
 
-    def availableCompletions(self):
-        return [self.R_DEF_COMPLETE]
+        super().__init__(url)
 
-    def _getSearchLoader(self, req_type):
-
-        if req_type == self.R_DEF_COMPLETE:
-            mkts = {
-                'uk' : '3'
-            }
-
-            mkt = mkts[self.locale] if self.locale in mkts else '1'
-
-            url = "https://completion." + self.base + "/search/complete?method=completion&search-alias=aps&client=amazon-search-ui&mkt=" + mkt + "&q=%s"
-
-            return mnemory.completion.UrlCompletionDataLoader(url)
-
-        return None
-
-    def _getRequestData(self, rtype, opts, data):
-
-        if rtype == self.R_DEF_SEARCH:
-            url = "http://" + self.base + "/s/?field-keywords=%s"
-            return mnemory.getSimpleUrlDataQuoted(opts, url)
-        else:
-            return self._getCompletions(data)
-
-    def _getCompletions(self, data):
+    def _get_completions(self, data):
         data = loads(data)
 
         # the basic completions - not the "node" results
         simple_compls = data[1]
 
         compls = [mnemory.CompletionResult(x) for x in simple_compls]
+        return compls
 
-        cs = mnemory.request_data.CompletionReqData(compls)
+class AmazonSearch(mnemory.SearchMnemory):
 
-        return cs
+    key = "com.amazon.search"
+    defaultAlias = "amazon"
+
+    def __init__(self, loc):
+        mnemory.SearchMnemory.__init__(self, loc)
+
+        self.base = "amazon." + locale.tldForLocale(self.locale)
+
+        s_url = "http://" + self.base + "/s/?field-keywords=%s"
+
+        search = mnemory.UrlInterpolationProvider(s_url)
+        comp = _Completion(self.base, loc)
+
+        self._add_basic_search_complete(search, comp)
+
+    def defaultLocale(self):
+        return "uk"
 
 class Amazon(mnemory.MnemPlugin):
 
