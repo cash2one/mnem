@@ -45,10 +45,10 @@ class BaiduWebSearch(BaiduSearch):
 
         self._add_basic_search_complete(search, comp)
 
-class _BdImgComp(request_provider.SimpleUrlDataCompletion):
+class _BdProductComp(request_provider.SimpleUrlDataCompletion):
 
-    def __init__(self):
-        pat = "http://nssug.baidu.com/su?wd=%s&prod=image"
+    def __init__(self, prod):
+        pat = "http://nssug.baidu.com/su?wd=%%s&prod=%s" % prod
         super().__init__(pat)
 
     def _get_completions(self, data):
@@ -71,7 +71,22 @@ class BaiduImageSearch(BaiduSearch):
         s_url = "http://image.baidu.com/search/index?tn=baiduimage&word=%s"
 
         search = request_provider.UrlInterpolationProvider(s_url)
-        comp = _BdImgComp()
+        comp = _BdProductComp('image')
+
+        self._add_basic_search_complete(search, comp)
+
+class BaiduWenkuSearch(BaiduSearch):
+
+    key = "com.baidu.wenku"
+    defaultAlias = "baidu-wenku"
+
+    def __init__(self, locale=None):
+        super().__init__()
+
+        s_url = "http://wenku.baidu.com/search?word=%s"
+
+        search = request_provider.UrlInterpolationProvider(s_url)
+        comp = _BdProductComp('wenku')
 
         self._add_basic_search_complete(search, comp)
 
@@ -83,5 +98,6 @@ class Baidu(mnemory.MnemPlugin):
     def reportMnemories(self):
         return [
             BaiduWebSearch,
-            BaiduImageSearch
+            BaiduImageSearch,
+            BaiduWenkuSearch
         ]
