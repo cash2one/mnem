@@ -364,7 +364,8 @@ class MnemAppWindow(Gtk.Window):
             "f": ("farnell", 'uk'),
             "(": ("baidu", None),
             "yd": ("youdao", None),
-            "w": ("wikipedia", 'en')
+            "w": ("wikipedia", 'en'),
+            'm': ('mdbg', None)
         }
 
         try:
