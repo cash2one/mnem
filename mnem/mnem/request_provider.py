@@ -7,6 +7,9 @@ Created on 6 Apr 2016
 from mnem import request_data, request_loader
 from mnem.mnem import MnemError
 
+# provider types
+PROV_SEARCH_REF = 0
+PROV_COMPLETE = 1
 
 class RequestDataParseError(MnemError):
     '''
@@ -30,6 +33,9 @@ class RequestProvider(object):
 
         data = self._load_data(opts)
         return self._process_data(opts, data)
+
+    def provider_type(self):
+        raise NotImplementedError
 
     def _can_process_query(self, opts):
         '''
@@ -73,6 +79,9 @@ class UrlInterpolationProvider(RequestProvider):
     '''
     def __init__(self, pattern):
         self.pattern = pattern
+
+    def provider_type(self):
+        return PROV_SEARCH_REF
 
     def _process_query(self, query):
         '''
@@ -118,6 +127,9 @@ class SimpleUrlDataCompletion(InterpolatingUrlDataProvider):
     def __init__(self, url, *args, **kwargs):
         super(SimpleUrlDataCompletion, self).__init__(url, *args, **kwargs)
         self.url_prov = None
+
+    def provider_type(self):
+        return PROV_COMPLETE
 
     def _get_completions(self, data):
         raise NotImplementedError

@@ -35,8 +35,8 @@ class MnemorySearchInfoAPI(Resource):
 
         jc = {
             'key': key,
-            'completions': mnemory.availableCompletions(),
-            'searches': mnemory.availableRequests()  # TODO need to add more info here
+            'completions': mnemory.getRequestProviders(request_provider.PROV_COMPLETE),
+            'search-ref': mnemory.getRequestProviders(request_provider.PROV_SEARCH_REF)
         }
 
         return jc

@@ -81,44 +81,37 @@ class SearchMnemory(Mnemory):
         '''
         return None
 
-    def availableRequests(self):
+    def getRequestProviders(self, prov_type):
         '''
-        Returns a list of request type keys
+        Returns a list of request type keys, in no particular order
         
         Default is to return all keys in a dict called providers, but you
         can do this yourself if you have more complex logic
-        
-        If you override, the first item in this list is the default one for 
-        this engine
         '''
-        return [p for p in self.providers]
+        return [p for p in self.providers if self.providers[p].provider_type() == prov_type]
 
-    def availableCompletions(self):
-        """
-        Return a list of available completion keys. If there is a default-looking
-        completion provided, the default impl will provide it
-        """
-        comps = []
+    def getDefaultRequestType(self):
+        '''
+        Returns the default request type for this engine, or None if
+        no searches available
+        
+        Default is return R_DEF_SEARCH if it is in providers, or none.
+        Inheritors can override if they need
+        '''
 
-        if self.R_DEF_COMPLETE in self.providers:
-            comps.append(self.R_DEF_COMPLETE)
-
-        return comps
+        if self.R_DEF_SEARCH in self.providers:
+            return  self.R_DEF_SEARCH
+        return None
 
     def getDefaultCompletion(self):
         """Returns the fairst available completion available
         from this search engine
         """
 
-        comps = self.availableCompletions()
+        if self.R_DEF_COMPLETE in self.providers:
+            return  self.R_DEF_COMPLETE
 
-        try:
-            # default is the first provided completion from
-            # availableCompletions
-            return comps[0]
-        except IndexError:
-            # hmm, should this be a separate error type?
-            raise completion.CompletionNotAvailableError("$default")
+        return None
 
     def getRequestData(self, req_type, options, search_loader=None):
         '''
@@ -143,18 +136,6 @@ class SearchMnemory(Mnemory):
         '''
 
         return self.providers[req_type]
-
-    def getDefaultRequestType(self):
-        '''
-        Returns the default request type for this engine, or None if
-        no searches available
-        '''
-        try:
-            return self.availableRequests()[0]
-        except IndexError:
-            pass
-
-        return None
 
     def _add_basic_search_complete(self, search_prov, comp_prov):
         '''

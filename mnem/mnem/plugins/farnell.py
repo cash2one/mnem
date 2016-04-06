@@ -96,6 +96,9 @@ class FarnellSearch(mnemory.SearchMnemory):
                 self.R_CATEGORY: manf_cat_search
         }
 
+    def getDefaultRequestType(self):
+        return self.R_PRODUCT
+
     def defaultLocale(self):
         return "us"
 
