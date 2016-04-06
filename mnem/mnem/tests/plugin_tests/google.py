@@ -14,14 +14,14 @@ class GoogleTest(search_tests.SearchTest):
         self.assertAtLeastNCompls(google.GoogleSearch(),
                                       "cat", 5)
 
-    def testGFin(self):
+    def testGoogleFin(self):
         self.assertAtLeastNCompls(google.GoogleFinanceSearch(),
                                       "dra", 5)
 
-    def testGImg(self):
+    def testGoogleImg(self):
         self.assertAtLeastNCompls(google.GoogleImageSearch(),
                                       "cat", 10)
 
-    def testGTrends(self):
+    def testGoogleTrends(self):
         self.assertAtLeastNCompls(google.GoogleTrendsSearch(),
                                       "cat", 5)
